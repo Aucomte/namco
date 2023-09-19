@@ -148,6 +148,32 @@ output$confounding_PDF_download <- downloadHandler(
   }
 )
 
+output$confounding_SVG_download <- downloadHandler(
+  filename=function(){
+    paste("confounding_heatmap.svg")
+  },
+  content=function(file){
+    if(!is.null(currentSet())){
+      if(!is.null(vals$datasets[[currentSet()]]$confounder_table)){
+        data<-vals$datasets[[currentSet()]]$confounder_table$table
+        colnames(data)[which(colnames(data)==input$confounding_heatmap_type)] <- "plot_variable"
+        data <- data[which(tested_variable %in% input$confounding_select_tested_variable),]
+        p<-ggplot(data, aes(x=tested_variable, y=possible_confounder, fill=plot_variable))+
+          geom_tile(color="black")+
+          xlab("tested variable")+
+          ylab("possible confounder")+
+          theme(axis.text.x = element_text(angle = 45, hjust=1),
+                axis.title = element_text(size=15),
+                axis.text = element_text(size=input$confounding_label_size))+
+          ggtitle("Heatmap of confounding factors")+
+          scale_fill_viridis(discrete=input$confounding_heatmap_type!="pvalue")
+        
+        ggsave(file, plot=p, idth=20, height=12)
+      }
+    }
+  }
+)
+
 output$confounding_table_download <- downloadHandler(
   filename = function(){
     paste("confounding_factors.csv")
@@ -328,6 +354,19 @@ output$forest_con_matrixPDF <- downloadHandler(
   }
 )
 
+output$forest_con_matrixSVG <- downloadHandler(
+  filename = function(){"randomForest_confusion_matrix.svg"},
+  content = function(file){
+    if(!is.null(currentSet())){
+      if(vals$datasets[[currentSet()]]$has_rf){
+        pdf(file, width=8, height=6)
+        draw_confusion_matrix(vals$datasets[[currentSet()]]$rf_lst$cmtrx) 
+        dev.off()
+      }
+    }
+  }
+)
+
 output$forest_con_matrix_full <- renderPlot({
   if(!is.null(currentSet())){
     if(vals$datasets[[currentSet()]]$has_rf){
@@ -339,6 +378,19 @@ output$forest_con_matrix_full <- renderPlot({
 #download as pdf
 output$forest_con_matrix_fullPDF <- downloadHandler(
   filename = function(){"randomForest_confusion_matrix_full.pdf"},
+  content = function(file){
+    if(!is.null(currentSet())){
+      if(vals$datasets[[currentSet()]]$has_rf){
+        pdf(file, width=8, height=6)
+        draw_confusion_matrix(vals$datasets[[currentSet()]]$rf_lst$cmtrx_full) 
+        dev.off()
+      }
+    }
+  }
+)
+
+output$forest_con_matrix_fullSVG <- downloadHandler(
+  filename = function(){"randomForest_confusion_matrix_full.svg"},
   content = function(file){
     if(!is.null(currentSet())){
       if(vals$datasets[[currentSet()]]$has_rf){
@@ -363,6 +415,20 @@ output$forest_roc <- renderPlot({
 #download as pdf
 output$forest_rocPDF <- downloadHandler(
   filename = function(){"randomForest_roc.pdf"},
+  content = function(file){
+    if(!is.null(currentSet())){
+      if(vals$datasets[[currentSet()]]$has_rf){
+        pdf(file, width=8, height=6)
+        res<-evalm(vals$datasets[[currentSet()]]$rf_lst$model)
+        res$roc 
+        dev.off()
+      }
+    }
+  }
+)
+
+output$forest_rocSVG <- downloadHandler(
+  filename = function(){"randomForest_roc.svg"},
   content = function(file){
     if(!is.null(currentSet())){
       if(vals$datasets[[currentSet()]]$has_rf){
@@ -409,6 +475,18 @@ output$forest_top_featuresPDF <- downloadHandler(
   }
 )
 
+output$forest_top_featuresSVG <- downloadHandler(
+  filename = function(){"randomForest_features.svg"},
+  content = function(file){
+    if(!is.null(currentSet())){
+      if(vals$datasets[[currentSet()]]$has_rf){
+        pdf(file, width=8, height=6)
+        plot(varImp(vals$datasets[[currentSet()]]$rf_lst$model)) 
+        dev.off()
+      }
+    }
+  }
+)
 
 output$forest_save_model <- downloadHandler(
   filename=function(){paste("random_forest_model.rds")},

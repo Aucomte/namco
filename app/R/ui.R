@@ -429,7 +429,8 @@ ui <- dashboardPage(
                   solidHeader = T, status='info', width=12, collapsible = T, collapsed = T
                 ),
                 p("The above plot shows the library size of each sample. Control samples are usually located at the lower end of the library size distribution in a dataset."),
-                downloadLink("librarySizePlotPDF", "Download as PDF")
+                downloadLink("librarySizePlotPDF", "Download as PDF"),
+                downloadLink("librarySizePlotSVG", "Download as SVG")
               )),
               column(2, wellPanel(
                 numericInput('decontamThreshold', 'Probability threshold to reject H0', min = 0, max=1, value = .1, step = 0.01),
@@ -455,7 +456,8 @@ ui <- dashboardPage(
                 p('The above plot shows if the selected feature (OTU/ASV) is a robust candidate for a contaminant. 
                   The red line shows the model of a contaminant sequence feature, for which frequency is expected to be inversely proportional to input DNA concentration.
                   This means if the black points follow this red line, this feature is in line with the model and can be considered a robust result.'),
-                downloadLink("contamDiagnosticDNA_PDF", "Download as PDF")
+                downloadLink("contamDiagnosticDNA_PDF", "Download as PDF"),
+                downloadLink("contamDiagnosticDNA_SVG", "Download as SVG")
               )),
               column(5, wellPanel(
                 box(
@@ -464,7 +466,8 @@ ui <- dashboardPage(
                   solidHeader = T, status='info', width=12, collapsible = T, collapsed = T
                 ),
                 p('The above plot shows how often the individual OTUs/ASVs were observed in the control and true samples. Contaminants should clearly form a branch that distinguishes them from features that are not contaminated. You can hover over the individual points to find out the name of potential outliers.'),
-                downloadLink("contamDiagnosticPrev_PDF", "Download as PDF")
+                downloadLink("contamDiagnosticPrev_PDF", "Download as PDF"),
+                downloadLink("contamDiagnosticPrev_SVG", "Download as SVG")
               )),
               column(2, wellPanel(
                 pickerInput('contamCandidatesSelectRemove', 'Select all contaminants to remove', choices=c(), multiple = T, options = list(`actions-box` = TRUE)),
@@ -595,7 +598,8 @@ ui <- dashboardPage(
                 column(9,
                        #shinycssloaders::withSpinner(plotlyOutput("taxaDistribution", height = "auto")),
                        plotlyOutput("taxaDistribution", height = "auto"),
-                       downloadLink("taxaPDF", "Download as PDF")
+                       downloadLink("taxaPDF", "Download as PDF"),
+                       downloadLink("taxaSVG", "Download as SVG")
                 ),
                 column(3, box(
                   width = 12,
@@ -632,7 +636,8 @@ ui <- dashboardPage(
               fluidRow(
                 column(9, wellPanel(
                   plotOutput("alphaPlot", height = "600px"),
-                  downloadLink("alphaPDF", "Download as PDF")
+                  downloadLink("alphaPDF", "Download as PDF"),
+                  downloadLink("alphaSVG", "Download as SVG")
                 )),
                 column(3, wellPanel(
                   selectInput("alphaMethod", "Method:", c("Shannon_Entropy", "effective_Shannon_Entropy", "Simpson_Index", "effective_Simpson_Index", "Richness"), multiple = T, selected = "Richness"),
@@ -676,7 +681,8 @@ ui <- dashboardPage(
                 column(9, wellPanel(
                   h5("Hierarchical clustering (Ward's method) of the sample using the chosen distance method"),
                   plotOutput("betaTree", width = "100%", height="600px"),
-                  downloadLink("betaTreePDF", "Download as PDF")
+                  downloadLink("betaTreePDF", "Download as PDF"),
+                  downloadLink("betaTreeSVG", "Download as SVG")
                 )),
                 column(3, wellPanel(
                   selectInput("betaMethod", "Method to calculate distances between samples:", choices = ""),
@@ -695,12 +701,12 @@ ui <- dashboardPage(
                        tabsetPanel(type="tabs",
                                    tabPanel("Non-metric multidimensional scaling (NMDS)",
                                             fluidRow(
-                                              column(6, plotOutput("betaDivNMDS", height='600px'), downloadLink('betaDivNMDSPDF', 'Download as PDF')),
-                                              column(6, plotOutput("betaDivStress", height='600px'), downloadLink('betaDivStressPDF', 'Download as PDF'))
+                                              column(6, plotOutput("betaDivNMDS", height='600px'), downloadLink('betaDivNMDSPDF', 'Download as PDF'), downloadLink('betaDivNMDSSVG', 'Download as SVG')),
+                                              column(6, plotOutput("betaDivStress", height='600px'), downloadLink('betaDivStressPDF', 'Download as PDF'), downloadLink('betaDivStressSVG', 'Download as SVG'))
                                             )),
                                    tabPanel("Principal Coordinate Analysis (PCoA)", 
                                             fluidRow(
-                                              column(6, plotOutput("betaDivPcoa", height='600px'), downloadLink('betaDivPocaPDF', 'Download as PDF'))
+                                              column(6, plotOutput("betaDivPcoa", height='600px'), downloadLink('betaDivPocaPDF', 'Download as PDF'), downloadLink('betaDivPocaSVG', 'Download as SVG'))
                                             ))
                        ))
               ),
@@ -751,7 +757,8 @@ ui <- dashboardPage(
               fluidRow(
                 column(10, wellPanel(
                   plotlyOutput("abundanceHeatmap", height = '500px'),
-                  downloadLink("abundanceHeatmapPDF", "Download as PDF")
+                  downloadLink("abundanceHeatmapPDF", "Download as PDF"),
+                  downloadLink("abundanceHeatmapSVG", "Download as SVG")
                 )),
                 column(
                   2,
@@ -821,6 +828,7 @@ ui <- dashboardPage(
                     actionBttn("associations_start", "Generate Plot...", icon = icon("play"), style = "pill", color = "primary", block = T, size = "md")
                   ),
                   downloadLink("associationsPDF", "Download as PDF"),
+                  downloadLink("associationsSVG", "Download as SVG"),
                   downloadLink("associationsTable", "Download significant features as table")
                 )
               )
@@ -850,7 +858,7 @@ ui <- dashboardPage(
                   numericInput("corrCorrelationCutoff", "Select absolute correlation cutoff", value = 0.7, min = 0.01, max = 1, step = 0.01),
                   radioGroupButtons("corrPval", "How to display non-significant correlations", choices = c("highlight", "blank", "do nothing"), selected = "do nothing", direction = "horizontal"),
                   sliderInput("corrTextSize","Change size of axis labels", value = 0.4, min=0.1, max=1, step = 0.1)
-                ), downloadLink("corrPlotPDF", "Download as PDF"))
+                ), downloadLink("corrPlotPDF", "Download as PDF"), downloadLink("corrPlotSVG", "Download as SVG"))
               )
             ),
             
@@ -947,7 +955,7 @@ ui <- dashboardPage(
                          " represents the marginal topic frequency. The amount of variation explained is",
                          " annotated on each axis."
                        ), class = "below")),
-                column(6, downloadLink("themetaBarPDF", "Download as PDF"), 
+                column(6, downloadLink("themetaBarPDF", "Download as PDF"), downloadLink("themetaBarSVG", "Download as SVG"), 
                        tags$div(paste0(
                          "Bar plot representing the taxa frequencies. When no topic is selected, the overall",
                          " taxa frequencies are shown, colored based on the selected taxonomy and ordered in",
@@ -1007,7 +1015,8 @@ ui <- dashboardPage(
                   selectInput("timeSeriesHighlightColor", "Choose color for highlight", choices=c("red","green","blue","black","orange","purple")),
                   radioGroupButtons("timeSeriesAdjPval","Display default or BH-adjusted p-values", choices=c("default","adjusted"), direction = "horizontal")
                 ),
-                downloadLink("timeSeriesPlotPDF", "Download as PDF"))
+                downloadLink("timeSeriesPlotPDF", "Download as PDF"),
+                downloadLink("timeSeriesPlotSVG", "Download as SVG"))
               ),
               hr(),
               h4("If you chose to cluster your samples, you can find additional statistics & information down here:"),
@@ -1189,8 +1198,8 @@ ui <- dashboardPage(
                   tabPanel(
                     "EC",
                     fluidRow(
-                      column(6, div("", plotOutput("picrust_ec_effect_plot")), downloadLink("picrust_ec_effectPDF", "Download as PDF")),
-                      column(6, div("", plotOutput("picrust_ec_vulcano_plot")), downloadLink("picrust_ec_vulcanoPDF", "Download as PDF"))
+                      column(6, div("", plotOutput("picrust_ec_effect_plot")), downloadLink("picrust_ec_effectPDF", "Download as PDF"), downloadLink("picrust_ec_effectSVG", "Download as SVG")),
+                      column(6, div("", plotOutput("picrust_ec_vulcano_plot")), downloadLink("picrust_ec_vulcanoPDF", "Download as PDF"), downloadLink("picrust_ec_vulcanoSVG", "Download as SVG"))
                     ),
                     fluidRow(
                       column(
@@ -1206,7 +1215,7 @@ ui <- dashboardPage(
                     h3("Details about significant functions:"),
                     hr(),
                     fluidRow(
-                      column(10, plotOutput("picrust_ec_signif_plot"), downloadLink("picrust_ec_signifPDF", "Download as PDF")),
+                      column(10, plotOutput("picrust_ec_signif_plot"), downloadLink("picrust_ec_signifPDF", "Download as PDF"), downloadLink("picrust_ec_signifSVG", "Download as SVG")),
                       column(2, 
                              numericInput("picrust_ec_signif_plot_show", "Maximum number of displayed ECs", 20, min = 1, max = 100, step = 1),
                              pickerInput("picrust_ec_select", "Select specific EC to display", choices=c(), multiple = T, options = list(`liveSearch` = T), width = "fit"),
@@ -1219,8 +1228,8 @@ ui <- dashboardPage(
                   tabPanel(
                     "KO",
                     fluidRow(
-                      column(6, div("", plotOutput("picrust_ko_effect_plot")), downloadLink("picrust_ko_effectPDF", "Download as PDF")),
-                      column(6, div("", plotOutput("picrust_ko_vulcano_plot")), downloadLink("picrust_ko_vulcanoPDF", "Download as PDF"))
+                      column(6, div("", plotOutput("picrust_ko_effect_plot")), downloadLink("picrust_ko_effectPDF", "Download as PDF"), downloadLink("picrust_ko_effectSVG", "Download as SVGF")),
+                      column(6, div("", plotOutput("picrust_ko_vulcano_plot")), downloadLink("picrust_ko_vulcanoPDF", "Download as PDF"), downloadLink("picrust_ko_vulcanoSVG", "Download as SVG"))
                     ),
                     fluidRow(
                       column(
@@ -1235,7 +1244,7 @@ ui <- dashboardPage(
                     ),
                     h3("Details about significant functions:"),
                     fluidRow(
-                      column(10, plotOutput("picrust_ko_signif_plot"), downloadLink("picrust_ko_signifPDF", "Download as PDF")),
+                      column(10, plotOutput("picrust_ko_signif_plot"), downloadLink("picrust_ko_signifPDF", "Download as PDF"), downloadLink("picrust_ko_signifSVG", "Download as SVG")),
                       column(2, 
                              numericInput("picrust_ko_signif_plot_show", "Maximum number of displayed KOs", 20, min = 1, max = 100, step = 1),
                              pickerInput("picrust_ko_select", "Select specific KO to display", choices=c(), multiple = T, options = list(`liveSearch` = T)),
@@ -1248,8 +1257,8 @@ ui <- dashboardPage(
                   tabPanel(
                     "PW",
                     fluidRow(
-                      column(6, div("", plotOutput("picrust_pw_effect_plot")), downloadLink("picrust_pw_effectPDF", "Download as PDF")),
-                      column(6, div("", plotOutput("picrust_pw_vulcano_plot")), downloadLink("picrust_pw_vulcanoPDF", "Download as PDF"))
+                      column(6, div("", plotOutput("picrust_pw_effect_plot")), downloadLink("picrust_pw_effectPDF", "Download as PDF"), downloadLink("picrust_pw_effectSVG", "Download as SVG")),
+                      column(6, div("", plotOutput("picrust_pw_vulcano_plot")), downloadLink("picrust_pw_vulcanoPDF", "Download as PDF"), downloadLink("picrust_pw_vulcanoSVG", "Download as SVG"))
                     ),
                     fluidRow(
                       column(
@@ -1264,7 +1273,7 @@ ui <- dashboardPage(
                     ),
                     h3("Details about significant functions:"),
                     fluidRow(
-                      column(10, plotOutput("picrust_pw_signif_plot"), downloadLink("picrust_pw_signifPDF", "Download as PDF")),
+                      column(10, plotOutput("picrust_pw_signif_plot"), downloadLink("picrust_pw_signifPDF", "Download as PDF"), downloadLink("picrust_pw_signifSVG", "Download as SVG")),
                       column(2, 
                              numericInput("picrust_pw_signif_plot_show", "Set max. number of displayed PWs", 20, min = 1, max = 100, step = 1),
                              pickerInput("picrust_pw_select", "Select specific PW to display", choices=c(), multiple = T, options = list(`liveSearch` = T)),
@@ -1542,7 +1551,8 @@ ui <- dashboardPage(
                     condition = "input.compNetworkInteractiveSwitch == false",
                     plotOutput("compNetwork", height = "800px")
                   ),
-                  downloadLink("comp_networkPDF", "Download as PDF")
+                  downloadLink("comp_networkPDF", "Download as PDF"),
+                  downloadLink("comp_networkSVG", "Download as SVG")
                 ),
                 box(
                   width = 3,
@@ -1648,7 +1658,8 @@ ui <- dashboardPage(
                     condition = "input.taxNetworkInteractiveSwitch == false",
                     plotOutput("taxNetwork", height = "800px")
                   ),
-                  downloadLink("tax_networkPDF", "Download as PDF")
+                  downloadLink("tax_networkPDF", "Download as PDF"),
+                  downloadLink("tax_networkSVG", "Download as SVG")
                 ),
                 box(
                   width = 3,
@@ -1759,11 +1770,13 @@ ui <- dashboardPage(
                                               condition = "input.diffNetworkInteractiveSwitch == false",
                                               wellPanel(plotOutput("groupNetwork", height = "800px"))
                                             ),
-                                            downloadLink("group_networkPDF", "Download as PDF")         
+                                            downloadLink("group_networkPDF", "Download as PDF"),
+                                            downloadLink("group_networkSVG", "Download as SVG")
                                    ),
                                    tabPanel("Differential network",
                                             wellPanel(plotOutput("diffNetwork", height="800px")),
-                                            downloadLink("diff_networkPDF", "Download as PDF")
+                                            downloadLink("diff_networkPDF", "Download as PDF"),
+                                            downloadLink("diff_networkSVG", "Download as SVG")
                                    )
                        )
                 ),
@@ -1836,7 +1849,8 @@ ui <- dashboardPage(
                          pickerInput("confounding_select_tested_variable", "Select which tested variables to show", choices=c(), multiple = T),
                          sliderInput("confounding_label_size", "Change label text size", min = 0, max=100, value=10, step=0.1),
                          downloadButton("confounding_table_download", "Download Table with results"),
-                         downloadLink("confounding_PDF_download","Download as PDF")
+                         downloadLink("confounding_PDF_download","Download as PDF"),
+                         downloadLink("confounding_SVG_download","Download as SVG")
                        )
                 )
               ),
@@ -1954,15 +1968,18 @@ ui <- dashboardPage(
                   p("Confusion Matrix for testing-dataset"),
                   plotOutput("forest_con_matrix"),
                   downloadLink("forest_con_matrixPDF", "Download as PDF"),
+                  downloadLink("forest_con_matrixSVG", "Download as SVG"),
                   br(),
                   p("Confusion Matrix for full dataset"),
                   plotOutput("forest_con_matrix_full"),
-                  downloadLink("forest_con_matrix_fullPDF", "Download as PDF")
+                  downloadLink("forest_con_matrix_fullPDF", "Download as PDF"),
+                  downloadLink("forest_con_matrix_fullSVG", "Download as SVG")
                 )),
                 column(4, wellPanel(
                   p("ROC-Plot: TP-rate vs. FP-rate including AUC for model"),
                   plotOutput("forest_roc"),
                   downloadLink("forest_rocPDF", "Download as PDF"),
+                  downloadLink("forest_rocSVG", "Download as SVG"),
                   p("The receiver operating characteristic (ROC) can show you how good the model can distuingish between sample-groups. A perfect ROC-Curve would go from (0,0) to (0,1) to (1,1). This means the model has a perfect measure of seperability. A ROC-Curve that goes diagonally from (0,0) to (1,1) tells you, that the model makes only random predictions."),
                   p("The AUC (area under the curve) is a good measure to compare multiple ROC curves and therefore models. Here a AUC of 1 tells you, that you have a perfect model, AUC of 0.5 is again only random.")
                 )),
@@ -1970,7 +1987,8 @@ ui <- dashboardPage(
                   p("Show the top x most important features for building the model. You can change how many features to display by moving the slider."),
                   sliderInput("top_x_features", "Pick x", min = 1, max = 100, value = 20, step = 1),
                   plotOutput("forest_top_features"),
-                  downloadLink("forest_top_featuresPDF", "Download as PDF")
+                  downloadLink("forest_top_featuresPDF", "Download as PDF"),
+                  downloadLink("forest_top_featuresSVG", "Download as SVG")
                 )),
                 downloadButton("forest_save_model", "Save model object as RDS file")
               )

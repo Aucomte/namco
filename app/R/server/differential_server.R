@@ -84,6 +84,23 @@ output$associationsPDF <- downloadHandler(
   }
 )
 
+output$associationsSVG <- downloadHandler(
+  filename=function(){"associations.svg"},
+  content = function(file){
+    if(!is.null(vals$datasets[[currentSet()]]$siamcat)){
+      s.obj <- vals$datasets[[currentSet()]]$siamcat
+      sort.by <- c("p.val","fc","pr.shift")[which(input$associations_sort==c("p-value","fold-change","prevalence shift"))]
+      panels <- c("fc","auroc","prevalence")[which(input$associations_panels==c("fold-change","AU-ROC","prevalence"))]
+      
+      suppressMessages(SIAMCAT::association.plot(vals$datasets[[currentSet()]]$siamcat, fn.plot = file, prompt=F, verbose=0,
+                                                 max.show = input$assiciation_show_numer, 
+                                                 sort.by = sort.by,
+                                                 panels = panels,
+                                                 color.scheme = input$namco_pallete))
+    }
+  }
+)
+
 output$associationsTable <- downloadHandler(
   filename = function(){'significant_features_associations.tab'},
   content = function(file){
@@ -188,6 +205,18 @@ output$corrPlotPDF <- downloadHandler(
     }
   }
 )
+
+output$corrPlotSVG <- downloadHandler(
+  filename = function(){"correlations.svg"},
+  content = function(file){
+    if(!is.null(corrReactive())){
+      pdf(file, width=12, height=12)
+      plot_correlation_custom(corrReactive()$my_cor_matrix, corrReactive()$my_pvl_matrix, input)
+      dev.off()
+    }
+  }
+)
+
 
 
 ####topic modeling####
@@ -500,6 +529,32 @@ output$themetaBarPDF <- downloadHandler(
   }
 )
 
+output$themetaBarSVG <- downloadHandler(
+  filename = function(){"themetagenomics_barplot.svg"},
+  content = function(file){
+    if(!is.null(REL())){
+      if (show_topic$k != 0){
+        p_bar <- ggplot(data=REL()) +
+          geom_bar(aes_(~Term,~Total,fill=~Taxon),stat='identity',color='white',alpha=.6) +
+          geom_bar(aes_(~Term,~Freq),stat='identity',fill='darkred',color='white')
+      } else{
+        p_bar <- ggplot(data=REL()) +
+          geom_bar(aes_(~Term,~Total,fill=~Taxon),stat='identity',color='white',alpha=1)
+      }
+      
+      p_bar <- p_bar +
+        coord_flip() +
+        labs(x='',y='Frequency',fill='') +
+        theme(axis.text.x=element_text(angle=-90,hjust=0,vjust=.5),
+              legend.position='bottom') +
+        viridis::scale_fill_viridis(discrete=TRUE,drop=FALSE) +
+        guides(fill=guide_legend(nrow=2))
+      
+      ggsave(file, p_bar, device="pdf", width = 10, height = 7)
+    }
+  }
+)
+
 output$corr <- renderForceNetwork({
   if(!is.null(currentSet())){
     shiny::validate(
@@ -736,6 +791,15 @@ output$timeSeriesPlotPDF <- downloadHandler(
   content = function(file){
     if(!is.null(timeSeriesPlotReactive())){
       ggsave(file, timeSeriesPlotReactive()$plot, device="pdf", width = 10, height = 7)
+    }
+  }
+)
+
+output$timeSeriesPlotSVG <- downloadHandler(
+  filename = function(){"time-series.svg"},
+  content = function(file){
+    if(!is.null(timeSeriesPlotReactive())){
+      ggsave(file, timeSeriesPlotReactive()$plot, width = 10, height = 7)
     }
   }
 )

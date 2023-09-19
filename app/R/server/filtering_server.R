@@ -477,6 +477,16 @@ output$librarySizePlotPDF <- downloadHandler(
   }
 )
 
+output$librarySizePlotSVG <- downloadHandler(
+  filename = function(){"decontamination_librarySize.svg"},
+  content = function(file){
+    if(!is.null(decontamPlotReactive())){
+      p <- decontamPlotReactive()$p
+      ggsave(filename = file, plot=p,  width = 10, height = 10)
+    }
+  }
+)
+
 decontamReactive <- eventReactive(input$startDecontam,{
   if(!is.null(currentSet())){
     
@@ -594,6 +604,16 @@ output$contamDiagnosticDNA_PDF <- downloadHandler(
   }
 )
 
+output$contamDiagnosticDNA_SVG <- downloadHandler(
+  filename = function(){"decontamination_diagnostics_DNAconcentration.svg"},
+  content = function(file){
+    if(!is.null(contamDiagnosticDNAReactive())){
+      p <- contamDiagnosticDNAReactive()$p
+      ggsave(filename = file, plot=p, width = 10, height = 10)
+    }
+  }
+)
+
 contamDiagnosticPrevReactive <- reactive({
   if(!is.null(decontamReactive())){
     
@@ -638,6 +658,16 @@ output$contamDiagnosticPrev_PDF <- downloadHandler(
     if(!is.null(contamDiagnosticPrevReactive())){
       p <- contamDiagnosticPrevReactive()$p
       ggsave(filename = file, plot=p, device="pdf", width = 10, height = 10)
+    }
+  }
+)
+
+output$contamDiagnosticPrev_SVG <- downloadHandler(
+  filename = function(){"decontamination_diagnostics_prevalence.svg"},
+  content = function(file){
+    if(!is.null(contamDiagnosticPrevReactive())){
+      p <- contamDiagnosticPrevReactive()$p
+      ggsave(filename = file, plot=p, width = 10, height = 10)
     }
   }
 )
