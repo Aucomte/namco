@@ -64,7 +64,7 @@ ENV OMP_NUM_THREADS=3
 
 # setup renv to handle R packages
 ENV RENV_VERSION 0.15.2
-RUN R -e "install.packages(c('remotes','huge'), repos = c(CRAN = 'https://cloud.r-project.org'))"
+RUN R -e "install.packages(c('remotes','huge','ranger','svglite'), repos = c(CRAN = 'https://cloud.r-project.org'))"
 RUN R -e "install.packages('https://cran.r-project.org/src/contrib/Archive/foreign/foreign_0.8-76.tar.gz')"
 RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"
 
