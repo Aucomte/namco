@@ -553,7 +553,7 @@ output$betaTreeSVG <- downloadHandler(
   content = function(file){
     if(!is.null(betaReactive())){
       beta <- betaReactive()
-      pdf(file, width=14, height=10)
+      svg(file, width=14, height=10)
       plot(beta$tree,type="phylogram",use.edge.length=T,tip.color=betaReactive()$colors[beta$all_groups],label.offset=0.01)
       axisPhylo()
       tiplabels(pch=16,col=betaReactive()$colors[beta$all_groups])
@@ -586,7 +586,7 @@ output$betaDivStressSVG <- downloadHandler(
   content = function(file){
     if(!is.null(betaReactive())){
       nmds <- betaReactive()$nmds_obj
-      pdf(file, width=14, height=10)
+      svg(file, width=14, height=10)
       vegan::stressplot(nmds, main='Shepard diagram (stressplot) of NMDS calculation')
       dev.off()
     }

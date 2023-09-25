@@ -168,7 +168,7 @@ output$confounding_SVG_download <- downloadHandler(
           ggtitle("Heatmap of confounding factors")+
           scale_fill_viridis(discrete=input$confounding_heatmap_type!="pvalue")
         
-        ggsave(file, plot=p, idth=20, height=12)
+        ggsave(file, plot=p, width=20, height=12)
       }
     }
   }
@@ -359,7 +359,7 @@ output$forest_con_matrixSVG <- downloadHandler(
   content = function(file){
     if(!is.null(currentSet())){
       if(vals$datasets[[currentSet()]]$has_rf){
-        pdf(file, width=8, height=6)
+        svg(file, width=8, height=6)
         draw_confusion_matrix(vals$datasets[[currentSet()]]$rf_lst$cmtrx) 
         dev.off()
       }
@@ -394,7 +394,7 @@ output$forest_con_matrix_fullSVG <- downloadHandler(
   content = function(file){
     if(!is.null(currentSet())){
       if(vals$datasets[[currentSet()]]$has_rf){
-        pdf(file, width=8, height=6)
+        svg(file, width=8, height=6)
         draw_confusion_matrix(vals$datasets[[currentSet()]]$rf_lst$cmtrx_full) 
         dev.off()
       }
@@ -432,7 +432,7 @@ output$forest_rocSVG <- downloadHandler(
   content = function(file){
     if(!is.null(currentSet())){
       if(vals$datasets[[currentSet()]]$has_rf){
-        pdf(file, width=8, height=6)
+        svg(file, width=8, height=6)
         res<-evalm(vals$datasets[[currentSet()]]$rf_lst$model)
         res$roc 
         dev.off()
@@ -480,7 +480,7 @@ output$forest_top_featuresSVG <- downloadHandler(
   content = function(file){
     if(!is.null(currentSet())){
       if(vals$datasets[[currentSet()]]$has_rf){
-        pdf(file, width=8, height=6)
+        svg(file, width=8, height=6)
         plot(varImp(vals$datasets[[currentSet()]]$rf_lst$model)) 
         dev.off()
       }

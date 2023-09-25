@@ -828,7 +828,7 @@ ui <- dashboardPage(
                     actionBttn("associations_start", "Generate Plot...", icon = icon("play"), style = "pill", color = "primary", block = T, size = "md")
                   ),
                   downloadLink("associationsPDF", "Download as PDF"),
-                  downloadLink("associationsSVG", "Download as SVG"),
+                  #downloadLink("associationsSVG", "Download as SVG"),
                   downloadLink("associationsTable", "Download significant features as table")
                 )
               )
@@ -858,7 +858,9 @@ ui <- dashboardPage(
                   numericInput("corrCorrelationCutoff", "Select absolute correlation cutoff", value = 0.7, min = 0.01, max = 1, step = 0.01),
                   radioGroupButtons("corrPval", "How to display non-significant correlations", choices = c("highlight", "blank", "do nothing"), selected = "do nothing", direction = "horizontal"),
                   sliderInput("corrTextSize","Change size of axis labels", value = 0.4, min=0.1, max=1, step = 0.1)
-                ), downloadLink("corrPlotPDF", "Download as PDF"), downloadLink("corrPlotSVG", "Download as SVG"))
+                ), downloadLink("corrPlotPDF", "Download as PDF")
+                #,downloadLink("corrPlotSVG", "Download as SVG")
+                )
               )
             ),
             

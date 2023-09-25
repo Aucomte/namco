@@ -91,12 +91,13 @@ output$associationsSVG <- downloadHandler(
       s.obj <- vals$datasets[[currentSet()]]$siamcat
       sort.by <- c("p.val","fc","pr.shift")[which(input$associations_sort==c("p-value","fold-change","prevalence shift"))]
       panels <- c("fc","auroc","prevalence")[which(input$associations_panels==c("fold-change","AU-ROC","prevalence"))]
-      
-      suppressMessages(SIAMCAT::association.plot(vals$datasets[[currentSet()]]$siamcat, fn.plot = file, prompt=F, verbose=0,
+      svg(file,width=8, height=6)
+      suppressMessages(SIAMCAT::association.plot(vals$datasets[[currentSet()]]$siamcat, fn.plot = file, prompt=T, verbose=0,
                                                  max.show = input$assiciation_show_numer, 
                                                  sort.by = sort.by,
                                                  panels = panels,
                                                  color.scheme = input$namco_pallete))
+      dev.off()
     }
   }
 )
@@ -210,7 +211,7 @@ output$corrPlotSVG <- downloadHandler(
   filename = function(){"correlations.svg"},
   content = function(file){
     if(!is.null(corrReactive())){
-      pdf(file, width=12, height=12)
+      svg(file, width=12, height=12)
       plot_correlation_custom(corrReactive()$my_cor_matrix, corrReactive()$my_pvl_matrix, input)
       dev.off()
     }
@@ -550,7 +551,7 @@ output$themetaBarSVG <- downloadHandler(
         viridis::scale_fill_viridis(discrete=TRUE,drop=FALSE) +
         guides(fill=guide_legend(nrow=2))
       
-      ggsave(file, p_bar, device="pdf", width = 10, height = 7)
+      ggsave(file, p_bar, width = 10, height = 7)
     }
   }
 )
