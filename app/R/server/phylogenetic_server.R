@@ -7,23 +7,32 @@ treeReactive <- reactive({
     phy <- prune_taxa(myTaxa, vals$datasets[[currentSet()]]$phylo)
     
     meta <- as.data.frame(phy@sam_data)
-    otu <- as.data.frame(otu_table(phy))
+    # use normalized OTU counts
+    otu <- vals$datasets[[currentSet()]]$normalizedData[myTaxa,]
+    
     taxonomy <- as.data.frame(tax_table(phy))
     if(!is.null(access(phy,"phy_tree"))) tree <- phy_tree(phy) else tree <- NULL
     if(!is.null(tree)){
       if(input$phylo_group != "NONE"){
         group <- input$phylo_group
-        # count number of occurrences of the OTUs in each sample group
         l<-lapply(na.omit(unique(meta[[group]])), function(x){
           samples_in_group <- na.omit(meta[["SampleID"]][as.character(meta[[group]])==as.character(x)])
           d<-data.frame(otu[,samples_in_group])
-          d<-data.frame(rowSums(apply(d,2,function(y) ifelse(y>0,1,0))))
+          # count number of occurrences of the OTUs in each sample group
+          if(input$phylo_metric=="Count occurences"){
+            d<-data.frame(rowSums(apply(d,2,function(y) ifelse(y>0,1,0))))
+          } else {
+            # return mean of each OTU per group
+            d<-data.frame(rowSums(d)/ncol(d))
+          }
+          
           colnames(d) <- c(as.character(x))
           return(d)
         })
         info <- merge(data.frame(l, check.names = F), taxonomy,by.x=0, by.y=0)
         rownames(info) <- info$Row.names
         info$Row.names <- NULL
+        
         group_cols <- suppressWarnings(which(colnames(info)%in%unique(meta[[group]])))
       }else{
         info <- taxonomy
@@ -72,7 +81,7 @@ output$phyloTree <- renderPlot({
                                                             colnames_position="top",
                                                             colnames_angle=90, colnames_offset_y = 5,
                                                             hjust=1, font.size = 3))) 
-      h <- h + scale_fill_manual(values=colorRampPalette(brewer.pal(9, input$namco_pallete))(length(unique(info[treeReactive()$taxa_cols,]))))
+      h <- h + scale_fill_manual(values=colorRampPalette(brewer.pal(9, input$namco_pallete))(nrow(unique(info[treeReactive()$taxa_cols]))))
     }
     h
   }
@@ -81,6 +90,39 @@ output$phyloTree <- renderPlot({
 
 #javascript show/hide toggle for advanced options
 shinyjs::onclick("phylo_toggle_advanced",shinyjs::toggle(id="phylo_advanced",anim = T))
+
+# download handler
+output$phyloTreeDownload <- downloadHandler(
+  filename=function(){"phylogenetic_tree.pdf"},
+  content = function(file){
+    if(!is.null(treeReactive())){
+      h <- treeReactive()$tree_plot
+      info <- treeReactive()$info
+      if(!is.null(treeReactive()$group_cols)){
+        h<-suppressWarnings(suppressMessages(ggtree::gheatmap(h, info[treeReactive()$group_cols], 
+                                                              offset=input$phylo_offset,
+                                                              color=NULL, 
+                                                              width=input$phylo_width_meta,
+                                                              colnames_position="top", 
+                                                              colnames_angle=90, colnames_offset_y = 5, 
+                                                              hjust=1, font.size=3,low="white")))
+        h <- h + new_scale_fill()   
+      }
+      if(!is.null(treeReactive()$taxa_cols)){
+        h<-suppressWarnings(suppressMessages(ggtree::gheatmap(h, info[treeReactive()$taxa_cols],
+                                                              width=input$phylo_width_taxonomy,
+                                                              offset=input$phylo_offset+5,
+                                                              color="black",
+                                                              colnames=T,
+                                                              colnames_position="top",
+                                                              colnames_angle=90, colnames_offset_y = 5,
+                                                              hjust=1, font.size = 3))) 
+        h <- h + scale_fill_manual(values=colorRampPalette(brewer.pal(9, input$namco_pallete))(nrow(unique(info[treeReactive()$taxa_cols]))))
+      }
+      ggsave(file, h, device="pdf", width = 16, height = 10)
+    }
+  }
+)
 
 
 

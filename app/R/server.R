@@ -4,21 +4,46 @@ namco_packages <- c(
   "RColorBrewer", "reshape2", "shiny", "textshape",
   "tidyr", "themetagenomics", "igraph", "grid", "dplyr",
   "Matrix", "phyloseq", "NbClust", "caret", "ranger", "gbm",
-  "shinyjs", "MLeval", "Rcpp", "MLmetrics", "mdine", "biomformat",
+  "shinyjs", "MLeval", "Rcpp", "MLmetrics", "biomformat",
   "waiter", "dada2", "Biostrings", "fontawesome", "shinyWidgets",
   "shinydashboard", "shinydashboardPlus", "proxy", "parallel",
   "DECIPHER", "SpiecEasi", "ALDEx2", "ggrepel", "SIAMCAT", "gridExtra",
   "genefilter", "fastqcr", "NetCoMi", "metagMisc", "ggnewscale", "ggtree",
-  "parallel", "scales", "ggpubr", "ggsci", "Hmisc", "corrplot", "factoextra",
-  "vegan", "decontam", "renv", "Biostrings","shinyBS","mdine","R.utils",
-  "BiocVersion", "biomehorizon"
+  "scales", "ggpubr", "ggsci", "Hmisc", "corrplot", "factoextra",
+  "vegan", "decontam", "renv", "shinyBS", "R.utils", "MOFA2",
+  "BiocVersion", "biomehorizon", "mixOmics", "ComplexHeatmap", "DESeq2"
 )
+
 # renv::snapshot(packages= namco_packages, lockfile="app/renv.lock")
 
-suppressMessages(lapply(namco_packages, require, character.only = T, quietly = T, warn.conflicts = F))
+check_pkgs <- suppressMessages(lapply(namco_packages, require, character.only = T, quietly = T, warn.conflicts = F))
+pkg_status <- ifelse(all(unlist(check_pkgs)), "Dependencies loaded successfully", "Not all dependencies could be loaded")
+message(Sys.time(), " - ", pkg_status)
 overlay_color <- "rgb(51, 62, 72, .5)"
 tree_logo <- fa("tree", fill = "red") # indication logo where phylo-tree is needed
 namco_version <- 'v1.1'
+captured_messages <- character()  # collected console logs and prints
+
+# Overload cat() to capture messages
+cat <- function(...) {
+  message_text <- paste(..., sep = " ")
+  captured_messages <<- c(captured_messages, message_text)
+  base::cat(...)  # Call the original cat function
+}
+
+# Overload print() to capture messages
+print <- function(...) {
+  message_text <- paste(..., sep = " ")
+  captured_messages <<- c(captured_messages, message_text)
+  base::print(...)  # Call the original print function
+}
+
+# Overload message() to capture messages
+message <- function(...) {
+  message_text <- paste(..., sep = " ")
+  captured_messages <<- c(captured_messages, message_text)
+  base::message(...)  # Call the original message function
+}
 
 server <- function(input, output, session) {
   waiter_hide()
@@ -33,11 +58,18 @@ server <- function(input, output, session) {
   currentSet <- NULL # a pointer to the currently selected dataset
   ncores <- 4 # number of cores used where it is possible to use multiple
   seed <- 123 # Global variable to use as seed
+  sessionID <- paste(sample(1:9, 14, replace = T), collapse = "")
   session$onSessionEnded(stopApp) # automatically stop app, if browser window is closed
   sample_column <- "SampleID" # the column with the sample IDs will be renamed to this
+  # session ID
+  message(paste0("#############", " NAMCO_ID: ", sessionID, " #############"))
+  output$sessionIdDiv <- renderText({
+    paste0("Session ID: ", sessionID)
+  })
   if (!interactive()) {
-    sink(stderr(), type = "output")
+    sink(stdout(), type = "output")
   } # this makes it so that print statements and other stdOut are saved in log file
+  
   
   # choose current dataset; return NULL if no set is yet uploaded
   currentSet <- eventReactive(input$datasets_rows_selected, {
@@ -45,6 +77,13 @@ server <- function(input, output, session) {
       return(NULL)
     }
     return(input$datasets_rows_selected)
+  })
+  
+  # display logs from all messages
+  observeEvent(input$info, {
+    output$consoleLogs <- renderText({
+      paste(captured_messages, collapse = "\n")
+    })
   })
   
   debugging <- F
@@ -148,6 +187,10 @@ server <- function(input, output, session) {
         if(!is.null(info_text)){
           showModal(infoModal(info_text))
         }
+        # check multi-omics flag for older versions
+        if(!"has_omics"%in%names(vals$datasets[[session_name]])) {
+          vals$datasets[[session_name]]$has_omics <- F
+        }
       },
       error = function(e) {
         print(e$message)
@@ -213,6 +256,12 @@ server <- function(input, output, session) {
   output$confounding_menu <- renderMenu({
     if(!is.null(currentSet())){
       menuItem("Confounding Analysis", tabName = "confounding", icon = icon("bolt"))
+    }
+  })
+  
+  output$multiomics_menu <- renderMenu({
+    if(!is.null(currentSet())){
+      menuItem("Multi-omics Analysis", tabName = "multiomics", icon = icon("microscope"))
     }
   })
   
@@ -294,29 +343,38 @@ server <- function(input, output, session) {
   # observer for normalization
   observeEvent(input$normalizationApply, {
     if (!is.null(currentSet())) {
-      normMethod <- which(input$normalizationSelect == c("no Normalization", "by minimum Sampling Depth", "by Rarefaction", "centered log-ratio", "Total Sum Normalization (normalize to 10,000 reads)")) - 1
-      normalized_dat <- normalizeOTUTable(vals$datasets[[currentSet()]]$rawData, normMethod)
+      normMethod <- which(input$normalizationSelect == c("no Normalization", "by minimum Sampling Depth", "by Rarefaction", "centered log-ratio", "Total Sum Normalization (normalize to 10,000 reads)", "Spike-in Normalization")) - 1
+      normalized_dat <- normalizeOTUTable(vals$datasets[[currentSet()]]$phylo, normMethod)
       vals$datasets[[currentSet()]]$normalizedData <- normalized_dat$norm_tab
       otu_table(vals$datasets[[currentSet()]]$phylo) <- otu_table(normalized_dat$norm_tab, T)
       vals$datasets[[currentSet()]]$normMethod <- normMethod
+      vals$datasets[[currentSet()]]$normFunction <- normalized_dat$f
     }
   })
   
   # normalization info
   output$normalizationDropdown <- renderMenu({
     if(!is.null(currentSet())){
-      methods <- c("no Normalization", "by minimum Sampling Depth", "by Rarefaction", "centered log-ratio", "Total Sum Normalization (normalize to 10,000 reads)", "Copy Number (Picrust2)")
+      methods <- c("no Normalization", "by minimum Sampling Depth", "by Rarefaction", "centered log-ratio", "Total Sum Normalization (normalize to 10,000 reads)", "Spike-in Normalization", "Copy Number (Picrust2)")
       normMethod <-  vals$datasets[[currentSet()]]$normMethod
       normMethodText <- methods[normMethod+1]
       
-      if(normMethod==0){
+      f <- vals$datasets[[currentSet()]]$normFunction
+      if (!is.null(f) && startsWith(f, "Error")) {
+        dropdownMenu(type="notification", badgeStatus = "warning",
+                     notificationItem(
+                       text=f,
+                       icon("exclamation-triangle"),
+                       status="warning"
+                     ))
+      } else if (normMethod==0) {
         dropdownMenu(type="notification", badgeStatus = "warning",
                      notificationItem(
                        text="Currently no normalization applied!",
                        icon("exclamation-triangle"),
                        status="warning"
                      ))
-      }else{
+      } else {
         dropdownMenu(type="notification", badgeStatus = "success",
                      notificationItem(
                        text=tags$div("Currently used normalization: ",
@@ -443,6 +501,7 @@ server <- function(input, output, session) {
   observe({
     if (!is.null(currentSet())) {
       phylo <- vals$datasets[[currentSet()]]$phylo
+      methods <- c("no Normalization", "by minimum Sampling Depth", "by Rarefaction", "centered log-ratio", "Total Sum Normalization (normalize to 10,000 reads)")
       
       if (vals$datasets[[currentSet()]]$has_meta) {
         meta <- data.frame(sample_data(phylo), check.names = F)
@@ -487,7 +546,7 @@ server <- function(input, output, session) {
             updatePickerInput(session, "alphaPairs", choices = pairs_list)  
           }
         }
-
+        
         # time series
         timePoints <- unique(meta[[input$timeSeriesGroup]])
         updateSelectizeInput(session, "timeSeriesTimePointOrder", choices = c(timePoints), selected = c(timePoints), server=T)
@@ -497,8 +556,16 @@ server <- function(input, output, session) {
         #picrust
         groupVariables <- unique(meta[[input$picrust_test_condition]])
         updateSelectizeInput(session, "picrust_test_covariate", choices = c(groupVariables), server=T)
+        
+        # add spike-in normalization
+        methods <- c(methods, "Spike-in Normalization")
       }else{
         updatePickerInput(session, "filterSample", choices = sample_names(phylo))
+      }
+      if(input$normalizationSelect!="") {
+        updateSelectInput(session, "normalizationSelect", selected = input$normalizationSelect, choices = methods)
+      } else {
+        updateSelectInput(session, "normalizationSelect", choices = methods) 
       }
     }
   }, priority = 3)
@@ -520,6 +587,7 @@ server <- function(input, output, session) {
         updateSelectInput(session, "filterTaxa", choices = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"))
         updateSelectInput(session, "taxBinningLevel", choices = c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species"))
         updateSelectInput(session, "horizonTaxaLevel", choices = rev(c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")))
+        updateSelectInput(session, "mofa2_taxa_level", choices = rev(c("Kingdom", "Phylum", "Class", "Order", "Family", "Genus", "Species")))
       }
       updateSelectInput(session, "taxBinningYLabel", choices = c('None', sample_column))
       if(input$taxBinningOrderManually){
@@ -527,7 +595,7 @@ server <- function(input, output, session) {
       }else{
         shinyjs::hide('taxBinningYOrder')
       }
-
+      
       if(!is.null(phylo@phy_tree)){
         updateSelectInput(session, "confounding_distance", choices=c("Unifrac","Bray-Curtis"))
         updateSelectInput(session, 'heatmapDistance', choices=c("bray", "gunifrac", "wunifrac", "unifrac", "jsd"))
@@ -562,10 +630,14 @@ server <- function(input, output, session) {
         updateSelectInput(session, "choose", choices = covariates)
         updateSelectInput(session, "taxBinningYLabel", choices = c("--Combined--", colnames(meta)), selected = sample_column)
         updateSelectInput(session, "alphaGroup", choices = c("-",sample_column, colnames(meta)), selected = "-")
-        updateSelectInput(session, "horizonSubject", choices = c("", colnames(meta)))
-        updateSelectInput(session, "horizonSample", choices = c("", colnames(meta)))
-        updateSelectInput(session, "horizonCollectionDate", choices = c("", colnames(meta)))
-        updateSelectInput(session, "horizonSubjectSelection", choices = c("", colnames(meta)))
+        updateSelectInput(session, "horizonSubject", choices = colnames(meta))
+        updateSelectInput(session, "horizonSample", choices = colnames(meta))
+        updateSelectInput(session, "horizonCollectionDate", choices = colnames(meta))
+        updateSelectInput(session, "horizonSubjectSelection", choices = colnames(meta))
+        # add meta options to metabolomics tab
+        updateSelectInput(session, "mofa2_sample_label", choices=colnames(meta))
+        updateSelectInput(session, "mofa2_condition_label", choices=colnames(meta))
+        updateSelectInput(session, "mofa2_group_label", choices=colnames(meta))
         
         # pick all column names, except the SampleID
         group_columns <- setdiff(colnames(meta), sample_column)
@@ -704,6 +776,10 @@ server <- function(input, output, session) {
   #####################################
   source(file.path("server", "upload_sample_server.R"), local = TRUE)$value
   #####################################
+  #    omics upload                   #
+  #####################################
+  source(file.path("server", "upload_multiomics_server.R"), local = TRUE)$value
+  #####################################
   #    data filtering                 #
   #####################################
   source(file.path("server", "filtering_server.R"), local = TRUE)$value
@@ -731,6 +807,10 @@ server <- function(input, output, session) {
   #    Confounding Analysis           #
   #####################################
   source(file.path("server", "confounding_server.R"), local = TRUE)$value
+  #####################################
+  #    Multi-omics Analysis           #
+  #####################################
+  source(file.path("server", "multiomics_server.R"), local = TRUE)$value
   #####################################
   #     fastq related things          #
   #####################################

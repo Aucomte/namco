@@ -63,7 +63,8 @@ output$associationsPlot <- renderPlot({
                                                max.show = input$assiciation_show_numer, 
                                                sort.by = sort.by,
                                                panels = panels,
-                                               color.scheme = input$namco_pallete))
+                                               color.scheme = input$namco_pallete) + 
+                       theme(text = element_text(size = 20)))
   }
 }, height=800)
 
@@ -250,7 +251,7 @@ observeEvent(input$themeta,{
                           rows_are_taxa = T,
                           tax_table = tax,
                           metadata = meta,
-                          formula=formula,
+                          formula = formula,
                           refs = refs,
                           cn_normalize = FALSE)
       
@@ -261,7 +262,7 @@ observeEvent(input$themeta,{
                                 K=K,
                                 sigma_prior = sigma_prior)
       
-      #measure relationship of covarite with samples over topics distribution from the STM
+      #measure relationship of covariate with samples over topics distribution from the STM
       topic_effects_obj <- est(topics_obj)
       
       #function_effects <- themetagenomics::est(functions_obj,topics_subset=3)
@@ -860,6 +861,13 @@ observe({
                          choices = c("", d), 
                          server=T)
   }
+  if(input$horizonCollectionDate!=""){
+    d <- phylo@sam_data[,input$horizonCollectionDate][[1]]
+    d <- d[!is.na(d) & d != "NA"]
+    updateSelectizeInput(session, 'horizonTimePointOrder', 
+                         choices = c("", d), 
+                         server=T)
+  }
 })
 
 get_date <- function(vec, fs = c("\\.", "-", ":")) {
@@ -881,103 +889,10 @@ breakLines <- function(labels, maxLen=15, removeUnderscores=T) {
   labels
 }
 
-# look for biomehorizon data input
-horizonData <- eventReactive(input$horizonStart, {
-  messages <- c()
-  waiter_show(html = tagList(spin_rotating_plane(), "Preparing horizon ..."),color=overlay_color)
-  phylo <- vals$datasets[[currentSet()]]$phylo
-  waiter_update(html = tagList(spin_rotating_plane(), "Aggregating taxa with the same rank ..."))
-  # merge otus with the same taxa level
-  phylo <- glom_taxa_custom(phylo, input$horizonTaxaLevel)[["phylo_rank"]]
-  # shorten taxa names
-  rownames(phylo@otu_table) <- breakLines(rownames(phylo@otu_table))
-  waiter_update(html = tagList(spin_rotating_plane(), "Preparing meta data ..."))
-  otu <- data.frame(OTU_ID=rownames(phylo@otu_table), phylo@otu_table, check.names = F)
-  taxa <- data.frame(taxon_id=rownames(phylo@tax_table), phylo@tax_table, check.names = F)
-  # prepare meta data
-  meta_raw <- phylo@sam_data
-  meta <- data.frame(meta_raw[,c(input$horizonSubject, input$horizonSample, input$horizonCollectionDate)], check.names = F)
-  colnames(meta) <- c("subject", "sample", "time_point")
-  # check weather time point field is a valid date
-  date_candidate <- get_date(meta$time_point)
-  if (!is.null(date_candidate)) {
-    meta$collection_date <- date_candidate
-    m <- "dates"
-  } else {
-    # extract numbers from given time field
-    number_candidate <- as.double(gsub("[^0-9|\\.]", "", meta$time_point))
-    if (any(is.na(number_candidate))) {
-      candidates <- unique(meta$time_point)
-      if (input$horizonSortTPs) candidates <- sort(candidates)
-      candidates <- candidates[!is.na(candidates) & candidates!="NA"]
-      candidates <- data.frame(candidates=candidates, collection_date=1:length(candidates))
-      
-      meta <- merge(meta, candidates, by.x = "time_point", by.y = "candidates")
-      
-      m <- "strings"
-    } else {
-      meta$collection_date <- number_candidate
-      m <- "numbers"
-    }
-    
-  }
-  waiter_update(html = tagList(spin_rotating_plane(), paste0("Using ", m, " as time point format ...")))
-  # remove NAs
-  meta <- meta[complete.cases(meta),]
-  # create time points
-  tps <- unique(meta[,c("collection_date", "time_point")])
-  tps <- tps[order(tps$collection_date),]
-  # check for duplicate labels
-  if (any(table(tps$collection_date)>1)) {
-    dl <- tps[duplicated(tps$collection_date),"time_point"]
-    messages <- c(messages, "Duplicate labels for timepoints found: ", paste(dl, collapse = ", "))
-    tps <- tps[!duplicated(tps$collection_date),]
-  }
-  
-  tax_data <- rownames(phylo@otu_table)
-  
-  if(input$horizonTaxaSelect!=""){
-    otulist <- input$horizonTaxaSelect
-  } else {
-    otulist <- NA
-  }
-  # select single subject
-  if(input$horizonSubjectSelection!=""){
-    subject <- input$horizonSubjectSelection
-    subject_label <- paste0("Samples from Subject: ", subject)
-    # samples per subject match number of time points selected
-    if(max(table(meta$subject)) <= nrow(tps)) {
-      data <- otu
-      # more samples per subject then expected
-    } else {
-      # aggregate by input$horizonSubjectSelection
-      meta$marker <- paste(meta$subject, meta$time_point, sep = "_")
-      groups <- unique(meta$marker)
-      data <- lapply(groups, function(g) rowSums(otu[,meta[meta$marker==g,"sample"],drop=F]))
-      names(data) <- groups
-      data <- data.frame(data, check.names = F)
-      data <- data.frame(taxon_id=rownames(data), data, check.names = F)
-      # collapse meta file to new samples
-      meta$sample <- meta$marker
-      meta$marker <- NULL
-      meta <- unique(meta)
-    }
-    # use complete group if no specific group is given
-  } else {
-    meta$subject <- "ALL"
-    subject <- "ALL"
-    subject_label <- "Samples from all subjects"
-    # aggregate samples for each time point
-    time_points <- unique(meta$time_point)
-    data <- lapply(time_points, function(tp) rowSums(otu[,meta[meta$time_point==tp,"sample"]]))
-    names(data) <- time_points
-    data <- data.frame(data, check.names = F)
-    data <- data.frame(taxon_id=rownames(data), data, check.names = F)
-    meta <- unique(meta[,c("collection_date", "time_point", "subject")])
-    meta$sample <- meta$time_point
-  }
-  paramList <- prepanel(otudata = data, metadata = meta, taxonomydata = tax_data,
-                        subj = subject, facetLabelsByTaxonomy = input$horizonShowTaxa,
+plotHorizon <- function(d, m, t, subj, time_points, label) {
+  # run main function
+  paramList <- prepanel(otudata = d, metadata = m, taxonomydata = t,
+                        subj = subj, facetLabelsByTaxonomy = input$horizonShowTaxa,
                         thresh_prevalence = as.numeric(input$horizonPrevalence), 
                         thresh_abundance = as.numeric(input$horizonAbundance), 
                         otulist = otulist, nbands = input$horizonNbands)
@@ -988,20 +903,19 @@ horizonData <- eventReactive(input$horizonStart, {
   paramList[[1]] <- paramList[[1]] %>% filter(otuid %in% topTaxa)
   paramList[[2]] <- data.frame(otuid=topTaxa, Kingdom=topTaxa)
   paramList[[4]] <- topTaxa
-  
+  # plot biomehorizon
   p <- horizonplot(paramList, aesthetics = horizonaes(title = "Microbiome Horizon Plot", 
-                                                      xlabel = subject_label, 
+                                                      xlabel = label, 
                                                       ylabel = paste0("Taxa found in >", input$horizonPrevalence,"% of samples",
                                                                       " with an average abundance of >= ", input$horizonAbundance), 
                                                       legendTitle = "Quartiles Relative to Taxon Median", 
                                                       legendPosition	= "bottom")) +
-    scale_x_continuous(breaks = 1:length(unique(meta$collection_date)), labels = tps$time_point) +
+    scale_x_continuous(breaks = 1:length(unique(m$collection_date)), labels = time_points$time_point) +
     theme(strip.text.y.left = element_text(size = 11.5), 
           axis.title.y = element_text(size = 12),
           axis.title.x = element_text(size = 12),
           axis.text.x = element_text(size = 11))
   # plot abundance next to taxa
-  
   hmData <- arrange(biomehorizonpkg_otu_stats, desc(Average_abundance))[1:k,1:2]
   ab <- ggplot(hmData, aes(x = 1, y = factor(OTU_ID, levels=rev(OTU_ID)), 
                            fill = Average_abundance)) +
@@ -1021,10 +935,107 @@ horizonData <- eventReactive(input$horizonStart, {
   
   # merge taxa abundance with horizon plot
   pGrid <- ggarrange(ab, p, ncol = 2, widths = c(0.05, 1))
+  return(pGrid)
+}
+
+horizonData <- eventReactive(input$horizonStart, {
+  tryCatch({
+    r <- runHorizon()
+  }, error=function(e){
+    waiter_hide()
+    print(e$message)
+    showModal(errorModal(e$message))
+    return(NULL)
+  })
+  return(r)
+})
+
+# look for biomehorizon data input
+runHorizon <- function() {
+  messages <- c()
+  waiter_show(html = tagList(spin_rotating_plane(), "Preparing horizon ..."),color=overlay_color)
+  phylo <- vals$datasets[[currentSet()]]$phylo
+  waiter_update(html = tagList(spin_rotating_plane(), "Aggregating taxa with the same rank ..."))
+  # merge otus with the same taxa level
+  phylo <- glom_taxa_custom(phylo, input$horizonTaxaLevel)[["phylo_rank"]]
+  # shorten taxa names
+  rownames(phylo@otu_table) <- breakLines(rownames(phylo@otu_table))
+  waiter_update(html = tagList(spin_rotating_plane(), "Preparing meta data ..."))
+  otu <- data.frame(OTU_ID=rownames(phylo@otu_table), phylo@otu_table, check.names = F)
+  taxa <- data.frame(taxon_id=rownames(phylo@tax_table), phylo@tax_table, check.names = F)
+  # prepare meta data
+  meta_raw <- phylo@sam_data
+  meta <- data.frame(meta_raw[,c(input$horizonSubject, input$horizonSample, input$horizonCollectionDate)], check.names = F)
+  colnames(meta) <- c("subject", "sample", "time_point")
+  # time point order
+  candidates <- input$horizonTimePointOrder
+  # handle no input
+  if (length(candidates) == 0) {
+    possible_tps <- unique(meta$time_point)
+    possible_tps <- possible_tps[!is.na(possible_tps) & possible_tps != "NA"]
+    candidates <- possible_tps
+  }
+  candidates <- data.frame(candidates=candidates, collection_date=1:length(candidates))
+  
+  meta <- merge(meta, candidates, by.x = "time_point", by.y = "candidates")
+  
+  # remove NAs
+  meta <- meta[complete.cases(meta),]
+  # create time points
+  tps <- unique(meta[,c("collection_date", "time_point")])
+  tps <- tps[order(tps$collection_date),]
+  # check for duplicate labels
+  if (any(table(tps$collection_date)>1)) {
+    dl <- tps[duplicated(tps$collection_date),"time_point"]
+    messages <- c(messages, "Duplicate labels for timepoints found: ", paste(dl, collapse = ", "))
+    tps <- tps[!duplicated(tps$collection_date),]
+  }
+  
+  tax_data <- rownames(phylo@otu_table)
+  
+  if(input$horizonTaxaSelect!=""){
+    otulist <- input$horizonTaxaSelect
+  } else {
+    otulist <- NA
+  }
+  # samples per subject match number of time points selected
+  if(max(table(meta$subject)) <= nrow(tps)) {
+    data <- otu
+    # more samples per subject then expected
+  } else {
+    # aggregate by specified groups
+    meta$marker <- paste(meta$subject, meta$time_point, sep = "_")
+    groups <- unique(meta$marker)
+    data <- lapply(groups, function(g) rowSums(otu[,meta[meta$marker==g,"sample"],drop=F]))
+    names(data) <- groups
+    data <- data.frame(data, check.names = F)
+    data <- data.frame(taxon_id=rownames(data), data, check.names = F)
+    # collapse meta file to new samples
+    meta$sample <- meta$marker
+    meta$marker <- NULL
+    meta <- unique(meta)
+  }
+  # select single subject
+  if(input$horizonSubjectSelection!=""){
+    subject <- input$horizonSubjectSelection
+    subject_label <- paste0("Samples from Subject: ", subject)
+    p <- plotHorizon(d = data, m = meta, t = tax_data, subj = subject, time_points = tps, label = subject_label)
+    pList <- list(plot = p, value = paste0("Plot ", subject))
+  } else {
+    # If no specific group is given determine all subjects
+    subjects <- unique(meta$subject)
+    # Check if there are more groups than allowed
+    if(length(subjects)>10) stop(paste0("Too many subjects detected (", length(subjects), "), please choose a grouping that has a maximum of 10 subjects"))
+    # plot for each condition
+    pList <- lapply(subjects, function(s) {
+      p <- plotHorizon(data, meta, tax_data, s, tps, label = paste0("Samples from Subject: ", s))
+      list(plot = p, value = paste0("Plot ", s))
+    })
+  }
   waiter_hide()
   horizonUploadModal(messages)
-  return(list(plot=pGrid, messages=messages, nTimePoints=nrow(tps)))
-})
+  return(list(plotList=pList, messages=messages, nTimePoints=nrow(tps)))
+}
 
 horizonUploadModal <- function(message=NULL){
   if(is.null(message) | length(message)==0){
@@ -1045,8 +1056,9 @@ horizonUploadModal <- function(message=NULL){
 
 # biomehorizon plot
 output$horizonPlot <- renderPlot({
-  if(!is.null(horizonData()$plot)){
-    horizonData()$plot
+  if(!is.null(horizonData()$plotList)){
+    plts <- lapply(horizonData()$plotList, "[[", "plot")
+    Reduce(`/`, plts)
   }
 }, height = 800)
 

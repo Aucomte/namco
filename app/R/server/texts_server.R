@@ -18,6 +18,10 @@ output$biomedLogo <- renderUI({
   biomedLogo
 })
 
+output$tumLogo <- renderUI({
+  tumLogo
+})
+
 output$contactText <- renderUI({
   contactText
 })
@@ -80,6 +84,10 @@ output$alphaDivFormulas <- renderUI({
 
 output$betaDivText <- renderUI({
   betaDivText
+})
+
+output$shepardText <- renderUI({
+  shepardText
 })
 
 output$associationsText <- renderUI({
@@ -354,4 +362,32 @@ output$decontamText <- renderUI({
 
 output$dada2_lotus2_warning <- renderUI({
   HTML('<font color="orange">Warning: Due to differences in pre- and post-processing, the standalone DADA2 (left) pipeline and DADA2 integrated in LotuS2 will likely result in different results.<br></font>')
+})
+
+output$mofa2InfoText <- renderUI({
+  mofa2InfoText
+})
+
+output$mofa2FactorVarianceText <- renderUI({
+  mofa2FactorVarianceText
+})
+
+output$mofa2FactorPlotsText <- renderUI({
+  mofa2FactorPlotsText
+})
+
+output$mofa2FactorCombinationsText <- renderUI({
+  mofa2FactorCombinationsText
+})
+
+output$mofa2FactorScatterText <- renderUI({
+  mofa2FactorScatterText
+})
+
+output$mofa2FactorWeightsText <- renderUI({
+  mofa2FactorWeightsText
+})
+
+output$diabloInfoText <- renderUI({
+  diabloInfoText
 })

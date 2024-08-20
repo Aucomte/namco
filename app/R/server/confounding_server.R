@@ -195,6 +195,7 @@ output$confounding_var_text <- renderUI({
   }
 })
 
+
 ####random forest models####
 
 #calculate confusion matrix using random forest aproach
@@ -281,8 +282,8 @@ observeEvent(input$forest_start,{
     
     #test model with testing dataset
     waiter_update(html = tagList(spin_rotating_plane(),"Testing Model ..." ))
-    predictions_model <- predict(model, newdata=testing)
-    predictions_model_full <- predict(model, newdata=combined_data)
+    predictions_model <- caret::predict.train(model, newdata=testing)
+    predictions_model_full <- caret::predict.train(model, newdata=combined_data)
     con_matrix<-confusionMatrix(data=predictions_model, reference= class_labels[-inTraining])
     con_matrix_full<-confusionMatrix(data=predictions_model_full, reference= class_labels)
     
@@ -549,3 +550,4 @@ observe({
 shinyjs::onclick("forest_toggle_advanced",shinyjs::toggle(id="forest_advanced",anim = T))
 #show/hide exclude OTU-option if OTU abundances are to be used for model building
 shinyjs::onclick("forest_otu",shinyjs::toggle(id="forest_exclude",anim = T))
+
