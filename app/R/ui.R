@@ -447,7 +447,8 @@ ui <- dashboardPage(
                 ),
                 p("The above plot shows the library size of each sample. Control samples are usually located at the lower end of the library size distribution in a dataset."),
                 downloadLink("librarySizePlotPDF", "Download as PDF"),
-                downloadLink("librarySizePlotSVG", "Download as SVG")
+                downloadLink("librarySizePlotSVG", "Download as SVG"),
+                downloadLink("librarySizePlotMETAFILE", "Download as METAFILE")
               )),
               column(2, wellPanel(
                 numericInput('decontamThreshold', 'Probability threshold to reject H0', min = 0, max=1, value = .1, step = 0.01),
@@ -474,7 +475,8 @@ ui <- dashboardPage(
                   The red line shows the model of a contaminant sequence feature, for which frequency is expected to be inversely proportional to input DNA concentration.
                   This means if the black points follow this red line, this feature is in line with the model and can be considered a robust result.'),
                 downloadLink("contamDiagnosticDNA_PDF", "Download as PDF"),
-                downloadLink("contamDiagnosticDNA_SVG", "Download as SVG")
+                downloadLink("contamDiagnosticDNA_SVG", "Download as SVG"),
+                downloadLink("contamDiagnosticDNA_METAFILE", "Download as METAFILE")
               )),
               column(5, wellPanel(
                 box(
@@ -484,7 +486,8 @@ ui <- dashboardPage(
                 ),
                 p('The above plot shows how often the individual OTUs/ASVs were observed in the control and true samples. Contaminants should clearly form a branch that distinguishes them from features that are not contaminated. You can hover over the individual points to find out the name of potential outliers.'),
                 downloadLink("contamDiagnosticPrev_PDF", "Download as PDF"),
-                downloadLink("contamDiagnosticPrev_SVG", "Download as SVG")
+                downloadLink("contamDiagnosticPrev_SVG", "Download as SVG"),
+                downloadLink("contamDiagnosticPrev_METAFILE", "Download as METAFILE")
               )),
               column(2, wellPanel(
                 pickerInput('contamCandidatesSelectRemove', 'Select all contaminants to remove', choices=c(), multiple = T, options = list(`actions-box` = TRUE)),

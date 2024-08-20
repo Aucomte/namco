@@ -487,6 +487,18 @@ output$librarySizePlotSVG <- downloadHandler(
   }
 )
 
+output$librarySizePlotMETAFILE <- downloadHandler(
+  filename = function(){"decontamination_librarySize.wmf"},
+  content = function(file){
+    if(!is.null(decontamPlotReactive())){
+      p <- decontamPlotReactive()$p
+      emf(file, width = 10, height = 10)
+      print(p)
+      dev.off() 
+    }
+  }
+)
+
 decontamReactive <- eventReactive(input$startDecontam,{
   if(!is.null(currentSet())){
     
@@ -614,6 +626,20 @@ output$contamDiagnosticDNA_SVG <- downloadHandler(
   }
 )
 
+output$contamDiagnosticDNA_METAFILE <- downloadHandler(
+  filename = function(){"decontamination_diagnostics_DNAconcentration.wmf"},
+  content = function(file){
+    if(!is.null(contamDiagnosticDNAReactive())){
+      p <- contamDiagnosticDNAReactive()$p
+      emf(file, width = 10, height = 10)
+      print(p)
+      dev.off() 
+    }
+  }
+)
+
+
+
 contamDiagnosticPrevReactive <- reactive({
   if(!is.null(decontamReactive())){
     
@@ -668,6 +694,18 @@ output$contamDiagnosticPrev_SVG <- downloadHandler(
     if(!is.null(contamDiagnosticPrevReactive())){
       p <- contamDiagnosticPrevReactive()$p
       ggsave(filename = file, plot=p, width = 10, height = 10)
+    }
+  }
+)
+
+output$contamDiagnosticPrev_METAFILE <- downloadHandler(
+  filename = function(){"decontamination_diagnostics_prevalence.wmf"},
+  content = function(file){
+    if(!is.null(contamDiagnosticPrevReactive())){
+      p <- contamDiagnosticPrevReactive()$p
+      emf(file, width = 10, height = 10)
+      print(p)
+      dev.off() 
     }
   }
 )
