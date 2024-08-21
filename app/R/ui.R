@@ -1937,7 +1937,8 @@ ui <- dashboardPage(
                          sliderInput("confounding_label_size", "Change label text size", min = 0, max=100, value=10, step=0.1),
                          downloadButton("confounding_table_download", "Download Table with results"),
                          downloadLink("confounding_PDF_download","Download as PDF"),
-                         downloadLink("confounding_SVG_download","Download as SVG")
+                         downloadLink("confounding_SVG_download","Download as SVG"),
+                         downloadLink("confounding_METAFILE_download","Download as METAFILE")
                        )
                 )
               ),
@@ -2056,17 +2057,20 @@ ui <- dashboardPage(
                   plotOutput("forest_con_matrix"),
                   downloadLink("forest_con_matrixPDF", "Download as PDF"),
                   downloadLink("forest_con_matrixSVG", "Download as SVG"),
+                  downloadLink("forest_con_matrixMETAFILE", "Download as METAFILE"),
                   br(),
                   p("Confusion Matrix for full dataset"),
                   plotOutput("forest_con_matrix_full"),
                   downloadLink("forest_con_matrix_fullPDF", "Download as PDF"),
-                  downloadLink("forest_con_matrix_fullSVG", "Download as SVG")
+                  downloadLink("forest_con_matrix_fullSVG", "Download as SVG"),
+                  downloadLink("forest_con_matrix_fullMETAFILE", "Download as METAFILE")
                 )),
                 column(4, wellPanel(
                   p("ROC-Plot: TP-rate vs. FP-rate including AUC for model"),
                   plotOutput("forest_roc"),
                   downloadLink("forest_rocPDF", "Download as PDF"),
                   downloadLink("forest_rocSVG", "Download as SVG"),
+                  downloadLink("forest_rocMETAFILE", "Download as METAFILE"),
                   p("The receiver operating characteristic (ROC) can show you how good the model can distuingish between sample-groups. A perfect ROC-Curve would go from (0,0) to (0,1) to (1,1). This means the model has a perfect measure of seperability. A ROC-Curve that goes diagonally from (0,0) to (1,1) tells you, that the model makes only random predictions."),
                   p("The AUC (area under the curve) is a good measure to compare multiple ROC curves and therefore models. Here a AUC of 1 tells you, that you have a perfect model, AUC of 0.5 is again only random.")
                 )),
@@ -2075,7 +2079,8 @@ ui <- dashboardPage(
                   sliderInput("top_x_features", "Pick x", min = 1, max = 100, value = 20, step = 1),
                   plotOutput("forest_top_features"),
                   downloadLink("forest_top_featuresPDF", "Download as PDF"),
-                  downloadLink("forest_top_featuresSVG", "Download as SVG")
+                  downloadLink("forest_top_featuresSVG", "Download as SVG"),
+                  downloadLink("forest_top_featuresMETAFILE", "Download as METAFILE")
                 )),
                 downloadButton("forest_save_model", "Save model object as RDS file")
               )
