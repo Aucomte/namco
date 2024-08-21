@@ -1635,7 +1635,8 @@ ui <- dashboardPage(
                     plotOutput("compNetwork", height = "800px")
                   ),
                   downloadLink("comp_networkPDF", "Download as PDF"),
-                  downloadLink("comp_networkSVG", "Download as SVG")
+                  downloadLink("comp_networkSVG", "Download as SVG"),
+                  downloadLink("comp_networkMETAFILE", "Download as METAFILE")
                 ),
                 box(
                   width = 3,
@@ -1742,7 +1743,8 @@ ui <- dashboardPage(
                     plotOutput("taxNetwork", height = "800px")
                   ),
                   downloadLink("tax_networkPDF", "Download as PDF"),
-                  downloadLink("tax_networkSVG", "Download as SVG")
+                  downloadLink("tax_networkSVG", "Download as SVG"),
+                  downloadLink("tax_networkMETAFILE", "Download as METAFILE")
                 ),
                 box(
                   width = 3,
@@ -1854,12 +1856,14 @@ ui <- dashboardPage(
                                               wellPanel(plotOutput("groupNetwork", height = "800px"))
                                             ),
                                             downloadLink("group_networkPDF", "Download as PDF"),
-                                            downloadLink("group_networkSVG", "Download as SVG")
+                                            downloadLink("group_networkSVG", "Download as SVG"),
+                                            downloadLink("group_networkMETAFILE", "Download as METAFILE")
                                    ),
                                    tabPanel("Differential network",
                                             wellPanel(plotOutput("diffNetwork", height="800px")),
                                             downloadLink("diff_networkPDF", "Download as PDF"),
-                                            downloadLink("diff_networkSVG", "Download as SVG")
+                                            downloadLink("diff_networkSVG", "Download as SVG"),
+                                            downloadLink("diff_networkMETAFILE", "Download as METAFILE")
                                    )
                        )
                 ),

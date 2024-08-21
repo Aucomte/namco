@@ -397,6 +397,49 @@ output$comp_networkSVG <- downloadHandler(
   }
 )
 
+output$comp_networkMETAFILE <- downloadHandler(
+  filename = function(){"network.wmf"},
+  content = function(file){
+    if(!is.null(currentSet())){
+      if(vals$datasets[[currentSet()]]$has_comp_nw){
+        if(input$compNetworkEdgeFilterMethod == "threshold"){
+          thresh <- 1 - unsigned(input$compNetworkEdgeFilterMethod)
+        }else{
+          thresh <- input$compNetworkEdgeFilterMethod
+        }
+        emf(file, width=9, height=7)
+        plot(vals$datasets[[currentSet()]]$compNetworkList$net_ana, 
+             sameLayout = T,
+             sameClustCol = T,
+             layout=input$compNetworkLayout,
+             layoutGroup = "union",
+             #rmSingles = input$compNetworkRmSingles,
+             featVecCol = vals$datasets[[currentSet()]]$compNetworkList$featVecCol,
+             colorVec = vals$datasets[[currentSet()]]$compNetworkList$tax_colors,
+             nodeColor = ifelse(input$compNetworkColor == "cluster", "cluster", "feature"),
+             nodeTransp = 30,
+             nodeSize = input$compNetworkNodeSize,
+             nodeFilter = input$compNetworkNodeFilterMethod,
+             nodeFilterPar = input$compNetworkNodeFilterValue,
+             edgeInvisFilter = input$compNetworkEdgeFilterMethod,
+             edgeInvisPar = thresh,
+             labelScale = T,
+             showTitle=T,
+             cexTitle=input$compNetworkTitleSize,
+             hubBorderCol  = "gray40",
+             title1=paste("Network on OTU level, edges calculated with",input$compNetworkMeasure)) 
+        if(input$compNetworkColor != "cluster" && !vals$datasets[[currentSet()]]$compNetworkList$use_cluster_colors){
+          legend(x=-1.1,y=1.1, legend = levels(vals$datasets[[currentSet()]]$compNetworkList$featVecCol), 
+                 fill=NetCoMi:::colToTransp(vals$datasets[[currentSet()]]$compNetworkList$tax_colors, 30), 
+                 cex=1, bty="n",pt.cex=2.5, title=input$compNetworkColor, y.intersp = .7)  
+        }
+        dev.off()
+      }
+    }
+  }
+)
+
+
 ##### differential network #####
 observe({
   if(input$diffNetworkTaxaLevel=="OTU/ASV"){
@@ -561,6 +604,28 @@ output$diff_networkSVG <- downloadHandler(
   content = function(file){
     if(!is.null(diffNetworkPlotReactive())){
       pdf(file, width=9, height=7)
+      plot(vals$datasets[[currentSet()]]$diffNetworkList$diff_net, 
+           layout=ifelse(input$diffNetworkLayout=="Fruchterman-Reingold","spring",input$diffNetworkLayout),
+           nodeTransp = 60,
+           edgeInvisFilter = input$diffNetworkEdgeFilterMethod,
+           edgeInvisPar = input$diffNetworkEdgeFilterValue,
+           labelScale = T,
+           cexLabels = input$diffNetworkLabelSize,
+           hubBorderCol  = "gray40",
+           legendGroupnames = c(vals$datasets[[currentSet()]]$diffNetworkList$groups[[1]],
+                                vals$datasets[[currentSet()]]$diffNetworkList$groups[[2]]),
+           legendPos ="topright",
+           cexTitle=input$diffNetworkTitleSize)
+      dev.off()
+    }
+  }
+)
+
+output$diff_networkMETAFILE <- downloadHandler(
+  filename = function(){"differential_network.wmf"},
+  content = function(file){
+    if(!is.null(diffNetworkPlotReactive())){
+      emf(file, width=9, height=7)
       plot(vals$datasets[[currentSet()]]$diffNetworkList$diff_net, 
            layout=ifelse(input$diffNetworkLayout=="Fruchterman-Reingold","spring",input$diffNetworkLayout),
            nodeTransp = 60,
@@ -774,6 +839,48 @@ output$group_networkSVG <- downloadHandler(
   }
 )
 
+output$group_networkMETAFILE <- downloadHandler(
+  filename = function(){"group_network.wmf"},
+  content = function(file){
+    if(!is.null(groupNetworkPlotReactive())){
+      if(input$diffNetworkEdgeFilterMethod == "threshold"){
+        thresh <- 1 - unsigned(input$diffNetworkEdgeFilterValue)
+      }else{
+        thresh <- input$diffNetworkEdgeFilterValue
+      }
+      emf(file, width=9, height=7)
+      plot(vals$datasets[[currentSet()]]$diffNetworkList$net_ana, 
+           sameLayout = T,
+           sameClustCol = T,
+           layout=input$diffNetworkLayout,
+           layoutGroup = "union",
+           rmSingles = input$diffNetworkRmSingles,
+           featVecCol = vals$datasets[[currentSet()]]$diffNetworkList$featVecCol,
+           colorVec = vals$datasets[[currentSet()]]$diffNetworkList$tax_colors,
+           nodeColor = ifelse(input$diffNetworkColor == "cluster", "cluster", "feature"),
+           nodeTransp = 30,
+           nodeSize = input$diffNetworkNodeSize,
+           nodeFilter = input$diffNetworkNodeFilterMethod,
+           nodeFilterPar = input$diffNetworkNodeFilterValue,
+           edgeInvisFilter = input$diffNetworkEdgeFilterMethod,
+           edgeInvisPar = thresh,
+           labelScale = T,
+           shortenLabels="none",
+           cexTitle=input$diffNetworkTitleSize,
+           cexLabels = input$diffNetworkLabelSize,
+           groupNames = vals$datasets[[currentSet()]]$diffNetworkList$groups,
+           showTitle=T,
+           hubBorderCol  = "gray40")
+      if(input$diffNetworkColor != "cluster" && !vals$datasets[[currentSet()]]$diffNetworkList$use_cluster_colors){
+        legend(x=-0.2,y=1.1, legend = levels(vals$datasets[[currentSet()]]$diffNetworkList$featVecCol), 
+               fill=NetCoMi:::colToTransp(vals$datasets[[currentSet()]]$diffNetworkList$tax_colors[[1]], 30), 
+               cex=1, bty="n",pt.cex=2.5, title=input$diffNetworkColor, y.intersp = .7)  
+      }
+      dev.off()
+    }
+  }
+)
+
 ##### taxonomic network #####
 
 observeEvent(input$taxNetworkCalculate, {
@@ -954,6 +1061,47 @@ output$tax_networkSVG <- downloadHandler(
         rank <- as.character(vals$datasets[[currentSet()]]$taxNetworkList$rank)
         method <- as.character(vals$datasets[[currentSet()]]$taxNetworkList$method)
         pdf(file, width = 9, height = 7)
+        plot(vals$datasets[[currentSet()]]$taxNetworkList$net_ana, 
+             sameLayout = T, 
+             layout=input$taxNetworkLayout,
+             rmSingles = input$taxNetworkRmSingles,
+             nodeColor = "cluster",
+             nodeTransp = 60,
+             nodeSize = input$taxNetworkNodeSize,
+             nodeFilter = input$taxNetworkNodeFilterMethod,
+             nodeFilterPar = input$taxNetworkNodeFilterValue,
+             edgeInvisFilter = input$taxNetworkEdgeFilterMethod,
+             edgeInvisPar =thresh,
+             labelScale = T,
+             hubBorderCol  = "gray40",
+             shortenLabels = "none",
+             labelLength = 10,
+             cexNodes = 1.2,
+             cexLabels = 3.5,
+             cexHubLabels = 4,
+             cexTitle=input$taxNetworkTitleSize,
+             showTitle=T,
+             title1 = paste("Network on",rank," level, edges calculated with ", method)
+        )
+        dev.off()
+      }
+    }
+  }
+)
+
+output$tax_networkMETAFILE <- downloadHandler(
+  filename = function(){"taxonomic_network.wmf"},
+  content = function(file){
+    if(!is.null(currentSet())){
+      if(vals$datasets[[currentSet()]]$has_tax_nw){
+        if(input$taxNetworkEdgeFilterMethod == "threshold"){
+          thresh <- 1 - unsigned(input$taxNetworkEdgeFilterValue)
+        }else{
+          thresh <- input$taxNetworkEdgeFilterValue
+        }
+        rank <- as.character(vals$datasets[[currentSet()]]$taxNetworkList$rank)
+        method <- as.character(vals$datasets[[currentSet()]]$taxNetworkList$method)
+        emf(file, width = 9, height = 7)
         plot(vals$datasets[[currentSet()]]$taxNetworkList$net_ana, 
              sameLayout = T, 
              layout=input$taxNetworkLayout,
