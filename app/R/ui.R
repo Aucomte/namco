@@ -619,7 +619,8 @@ ui <- dashboardPage(
                        #shinycssloaders::withSpinner(plotlyOutput("taxaDistribution", height = "auto")),
                        plotlyOutput("taxaDistribution", height = "auto"),
                        downloadLink("taxaPDF", "Download as PDF"),
-                       downloadLink("taxaSVG", "Download as SVG")
+                       downloadLink("taxaSVG", "Download as SVG"),
+                       downloadLink("taxaMETAFILE", "Download as METAFILE")
                 ),
                 column(3, box(
                   width = 12,
@@ -657,7 +658,8 @@ ui <- dashboardPage(
                 column(9, wellPanel(
                   plotOutput("alphaPlot", height = "600px"),
                   downloadLink("alphaPDF", "Download as PDF"),
-                  downloadLink("alphaSVG", "Download as SVG")
+                  downloadLink("alphaSVG", "Download as SVG"),
+                  downloadLink("alphaMETAFILE", "Download as METAFILE")
                 )),
                 column(3, wellPanel(
                   selectInput("alphaMethod", "Method:", c("Shannon_Entropy", "effective_Shannon_Entropy", "Simpson_Index", "effective_Simpson_Index", "Richness"), multiple = T, selected = "Richness"),
@@ -702,7 +704,8 @@ ui <- dashboardPage(
                   h5("Hierarchical clustering (Ward's method) of the sample using the chosen distance method"),
                   plotOutput("betaTree", width = "100%", height="600px"),
                   downloadLink("betaTreePDF", "Download as PDF"),
-                  downloadLink("betaTreeSVG", "Download as SVG")
+                  downloadLink("betaTreeSVG", "Download as SVG"),
+                  downloadLink("betaTreeMETAFILE", "Download as METAFILE")
                 )),
                 column(3, wellPanel(
                   selectInput("betaMethod", "Method to calculate distances between samples:", choices = ""),
@@ -721,11 +724,16 @@ ui <- dashboardPage(
                        tabsetPanel(type="tabs",
                                    tabPanel("Non-metric multidimensional scaling (NMDS)",
                                             fluidRow(
-                                              column(6, plotOutput("betaDivNMDS", height='600px'), downloadLink('betaDivNMDSPDF', 'Download as PDF'), downloadLink('betaDivNMDSSVG', 'Download as SVG')),
+                                              column(6, 
+                                                     plotOutput("betaDivNMDS", height='600px'), 
+                                                     downloadLink('betaDivNMDSPDF', 'Download as PDF'), 
+                                                     downloadLink('betaDivNMDSSVG', 'Download as SVG'),
+                                                     downloadLink('betaDivNMDSMETAFILE', 'Download as METAFILE')),
                                               column(6,
                                                      plotOutput("betaDivStress", height='500px'),
                                                      downloadLink('betaDivStressPDF', 'Download as PDF'),
                                                      downloadLink('betaDivStressSVG', 'Download as SVG'),
+                                                     downloadLink('betaDivStressMETAFILE', 'Download as METAFILE'),
                                                      box(
                                                        title = span( icon("info"), "What is a Shepards Diagram?"),
                                                        htmlOutput("shepardText"),
@@ -736,7 +744,11 @@ ui <- dashboardPage(
                                             ),
                                    tabPanel("Principal Coordinate Analysis (PCoA)", 
                                             fluidRow(
-                                              column(6, plotOutput("betaDivPcoa", height='600px'), downloadLink('betaDivPocaPDF', 'Download as PDF'), downloadLink('betaDivPocaSVG', 'Download as SVG'))
+                                              column(6, 
+                                                     plotOutput("betaDivPcoa", height='600px'), 
+                                                     downloadLink('betaDivPocaPDF', 'Download as PDF'), 
+                                                     downloadLink('betaDivPocaSVG', 'Download as SVG'),
+                                                     downloadLink('betaDivPocaMETAFILE', 'Download as METAFILE')),
                                             ))
                        ))
               ),
@@ -788,7 +800,8 @@ ui <- dashboardPage(
                 column(10, wellPanel(
                   plotlyOutput("abundanceHeatmap", height = '500px'),
                   downloadLink("abundanceHeatmapPDF", "Download as PDF"),
-                  downloadLink("abundanceHeatmapSVG", "Download as SVG")
+                  downloadLink("abundanceHeatmapSVG", "Download as SVG"),
+                  downloadLink("abundanceHeatmapMETAFILE", "Download as METAFILE")
                 )),
                 column(
                   2,

@@ -298,6 +298,17 @@ output$taxaSVG <- downloadHandler(
   }
 )
 
+output$taxaMETAFILE <- downloadHandler(
+  filename = function(){"taxonomic_binning.wmf"},
+  content = function(file){
+    if(!is.null(taxBinningPlotReact())){
+      p <- taxBinningPlotReact()$gg
+      emf(file, width = 16, height = 10)
+      print(p)
+      dev.off() 
+    }
+  }
+)
 
 ####alpha diversity####
 #reactive alpha-diversity table; stores all measures for alpha-div of current set
@@ -383,6 +394,18 @@ output$alphaSVG <- downloadHandler(
   content = function(file){
     if(!is.null(alphaReact())){
       ggsave(file, alphaReact()$gg, width = 15, height = 12)
+    }
+  }
+)
+
+output$alphaMETAFILE <- downloadHandler(
+  filename = function(){"alpha_diversity.wmf"},
+  content = function(file){
+    if(!is.null(alphaReact())){
+      p <- alphaReact()$gg
+      emf(file, width = 15, height = 12)
+      print(p)
+      dev.off() 
     }
   }
 )
@@ -562,6 +585,20 @@ output$betaTreeSVG <- downloadHandler(
   }
 )
 
+output$betaTreeMETAFILE <- downloadHandler(
+  filename = function(){"beta_diversity_clustering.wmf"},
+  content = function(file){
+    if(!is.null(betaReactive())){
+      beta <- betaReactive()
+      emf(file, width = 14, height = 10)
+      plot(beta$tree,type="phylogram",use.edge.length=T,tip.color=betaReactive()$colors[beta$all_groups],label.offset=0.01)
+      axisPhylo()
+      tiplabels(pch=16,col=betaReactive()$colors[beta$all_groups])
+      dev.off() 
+    }
+  }
+)
+
 output$betaDivStress <- renderPlot({
   if(!is.null(betaReactive())){
     nmds <- betaReactive()$nmds_obj
@@ -589,6 +626,18 @@ output$betaDivStressSVG <- downloadHandler(
       svg(file, width=14, height=10)
       vegan::stressplot(nmds, main='Shepard diagram (stressplot) of NMDS calculation')
       dev.off()
+    }
+  }
+)
+
+output$betaDivStressMETAFILE <- downloadHandler(
+  filename = function(){"beta_diversity_nmds_stressplot.wmf"},
+  content = function(file){
+    if(!is.null(betaReactive())){
+      nmds <- betaReactive()$nmds_obj
+      emf(file, width = 14, height = 10)
+      vegan::stressplot(nmds, main='Shepard diagram (stressplot) of NMDS calculation')
+      dev.off() 
     }
   }
 )
@@ -625,6 +674,18 @@ output$betaDivPocaSVG <- downloadHandler(
   }
 )
 
+output$betaDivPocaMETAFILE <- downloadHandler(
+  filename = function(){"beta_diversity_pcoa.wmf"},
+  content = function(file){
+    if(!is.null(betaReactive())){
+      p <- betaReactive()$beta_pcoa
+      emf(file, width = 15, height = 15)
+      plot(p)
+      dev.off() 
+    }
+  }
+)
+
 output$betaDivNMDSPDF <- downloadHandler(
   filename = function(){"beta_diversity_nmds.pdf"},
   content = function(file){
@@ -641,6 +702,18 @@ output$betaDivNMDSSVG <- downloadHandler(
     if(!is.null(betaReactive())){
       p <- betaReactive()$beta_nmds
       ggsave(filename = file, plot=p, width = 15, height = 15)
+    }
+  }
+)
+
+output$betaDivNMDSMETAFILE <- downloadHandler(
+  filename = function(){"beta_diversity_nmds.wmf"},
+  content = function(file){
+    if(!is.null(betaReactive())){
+      p <- betaReactive()$beta_nmds
+      emf(file, width = 15, height = 15)
+      plot(p)
+      dev.off() 
     }
   }
 )
@@ -725,3 +798,14 @@ output$abundanceHeatmapSVG <- downloadHandler(
   }
 )
 
+output$abundanceHeatmapMETAFILE <- downloadHandler(
+  filename = function(){"abundance_heatmap.wmf"},
+  content = function(file){
+    if(!is.null(abundanceHeatmapReact())){
+      p <- abundanceHeatmapReact()$gg
+      emf(file, width = 10, height = 7)
+      plot(p)
+      dev.off() 
+    }
+  }
+)
