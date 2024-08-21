@@ -1000,7 +1000,10 @@ ui <- dashboardPage(
                          " represents the marginal topic frequency. The amount of variation explained is",
                          " annotated on each axis."
                        ), class = "below")),
-                column(6, downloadLink("themetaBarPDF", "Download as PDF"), downloadLink("themetaBarSVG", "Download as SVG"), 
+                column(6, 
+                       downloadLink("themetaBarPDF", "Download as PDF"), 
+                       downloadLink("themetaBarSVG", "Download as SVG"),
+                       downloadLink("themetaBarMETAFILE", "Download as METAFILE"),
                        tags$div(paste0(
                          "Bar plot representing the taxa frequencies. When no topic is selected, the overall",
                          " taxa frequencies are shown, colored based on the selected taxonomy and ordered in",
@@ -1061,7 +1064,8 @@ ui <- dashboardPage(
                   radioGroupButtons("timeSeriesAdjPval","Display default or BH-adjusted p-values", choices=c("default","adjusted"), direction = "horizontal")
                 ),
                 downloadLink("timeSeriesPlotPDF", "Download as PDF"),
-                downloadLink("timeSeriesPlotSVG", "Download as SVG"))
+                downloadLink("timeSeriesPlotSVG", "Download as SVG"),
+                downloadLink("timeSeriesPlotMETAFILE", "Download as METAFILE"))
               ),
               hr(),
               h4("If you chose to cluster your samples, you can find additional statistics & information down here:"),
@@ -1246,8 +1250,16 @@ ui <- dashboardPage(
                   tabPanel(
                     "EC",
                     fluidRow(
-                      column(6, div("", plotOutput("picrust_ec_effect_plot")), downloadLink("picrust_ec_effectPDF", "Download as PDF"), downloadLink("picrust_ec_effectSVG", "Download as SVG")),
-                      column(6, div("", plotOutput("picrust_ec_vulcano_plot")), downloadLink("picrust_ec_vulcanoPDF", "Download as PDF"), downloadLink("picrust_ec_vulcanoSVG", "Download as SVG"))
+                      column(6, 
+                             div("", plotOutput("picrust_ec_effect_plot")), 
+                             downloadLink("picrust_ec_effectPDF", "Download as PDF"), 
+                             downloadLink("picrust_ec_effectSVG", "Download as SVG"),
+                             downloadLink("picrust_ec_effectMETAFILE", "Download as METAFILE")),
+                      column(6, 
+                             div("", plotOutput("picrust_ec_vulcano_plot")), 
+                             downloadLink("picrust_ec_vulcanoPDF", "Download as PDF"), 
+                             downloadLink("picrust_ec_vulcanoSVG", "Download as SVG"),
+                             downloadLink("picrust_ec_vulcanoMETAFILE", "Download as METAFILE"))
                     ),
                     fluidRow(
                       column(
@@ -1263,7 +1275,10 @@ ui <- dashboardPage(
                     h3("Details about significant functions:"),
                     hr(),
                     fluidRow(
-                      column(10, plotOutput("picrust_ec_signif_plot"), downloadLink("picrust_ec_signifPDF", "Download as PDF"), downloadLink("picrust_ec_signifSVG", "Download as SVG")),
+                      column(10, plotOutput("picrust_ec_signif_plot"), 
+                             downloadLink("picrust_ec_signifPDF", "Download as PDF"), 
+                             downloadLink("picrust_ec_signifSVG", "Download as SVG"),
+                             downloadLink("picrust_ec_signifMETAFILE", "Download as METAFILE")),
                       column(2, 
                              numericInput("picrust_ec_signif_plot_show", "Maximum number of displayed ECs", 20, min = 1, max = 100, step = 1),
                              pickerInput("picrust_ec_select", "Select specific EC to display", choices=c(), multiple = T, options = list(`liveSearch` = T), width = "fit"),
@@ -1276,8 +1291,14 @@ ui <- dashboardPage(
                   tabPanel(
                     "KO",
                     fluidRow(
-                      column(6, div("", plotOutput("picrust_ko_effect_plot")), downloadLink("picrust_ko_effectPDF", "Download as PDF"), downloadLink("picrust_ko_effectSVG", "Download as SVGF")),
-                      column(6, div("", plotOutput("picrust_ko_vulcano_plot")), downloadLink("picrust_ko_vulcanoPDF", "Download as PDF"), downloadLink("picrust_ko_vulcanoSVG", "Download as SVG"))
+                      column(6, div("", plotOutput("picrust_ko_effect_plot")), 
+                             downloadLink("picrust_ko_effectPDF", "Download as PDF"), 
+                             downloadLink("picrust_ko_effectSVG", "Download as SVG"),
+                             downloadLink("picrust_ko_effectMETAFILE", "Download as METAFILE")),
+                      column(6, div("", plotOutput("picrust_ko_vulcano_plot")), 
+                             downloadLink("picrust_ko_vulcanoPDF", "Download as PDF"), 
+                             downloadLink("picrust_ko_vulcanoSVG", "Download as SVG"),
+                             downloadLink("picrust_ko_vulcanoMETAFILE", "Download as METAFILE"))
                     ),
                     fluidRow(
                       column(
@@ -1292,7 +1313,10 @@ ui <- dashboardPage(
                     ),
                     h3("Details about significant functions:"),
                     fluidRow(
-                      column(10, plotOutput("picrust_ko_signif_plot"), downloadLink("picrust_ko_signifPDF", "Download as PDF"), downloadLink("picrust_ko_signifSVG", "Download as SVG")),
+                      column(10, plotOutput("picrust_ko_signif_plot"), 
+                             downloadLink("picrust_ko_signifPDF", "Download as PDF"), 
+                             downloadLink("picrust_ko_signifSVG", "Download as SVG"),
+                             downloadLink("picrust_ko_signifMETAFILE", "Download as METAFILE")),
                       column(2, 
                              numericInput("picrust_ko_signif_plot_show", "Maximum number of displayed KOs", 20, min = 1, max = 100, step = 1),
                              pickerInput("picrust_ko_select", "Select specific KO to display", choices=c(), multiple = T, options = list(`liveSearch` = T)),
@@ -1305,8 +1329,14 @@ ui <- dashboardPage(
                   tabPanel(
                     "PW",
                     fluidRow(
-                      column(6, div("", plotOutput("picrust_pw_effect_plot")), downloadLink("picrust_pw_effectPDF", "Download as PDF"), downloadLink("picrust_pw_effectSVG", "Download as SVG")),
-                      column(6, div("", plotOutput("picrust_pw_vulcano_plot")), downloadLink("picrust_pw_vulcanoPDF", "Download as PDF"), downloadLink("picrust_pw_vulcanoSVG", "Download as SVG"))
+                      column(6, div("", plotOutput("picrust_pw_effect_plot")), 
+                             downloadLink("picrust_pw_effectPDF", "Download as PDF"), 
+                             downloadLink("picrust_pw_effectSVG", "Download as SVG"),
+                             downloadLink("picrust_pw_effectMETAFILE", "Download as METAFILE")),
+                      column(6, div("", plotOutput("picrust_pw_vulcano_plot")), 
+                             downloadLink("picrust_pw_vulcanoPDF", "Download as PDF"), 
+                             downloadLink("picrust_pw_vulcanoSVG", "Download as SVG"),
+                             downloadLink("picrust_pw_vulcanoMETAFILE", "Download as METAFILE"))
                     ),
                     fluidRow(
                       column(
@@ -1321,7 +1351,10 @@ ui <- dashboardPage(
                     ),
                     h3("Details about significant functions:"),
                     fluidRow(
-                      column(10, plotOutput("picrust_pw_signif_plot"), downloadLink("picrust_pw_signifPDF", "Download as PDF"), downloadLink("picrust_pw_signifSVG", "Download as SVG")),
+                      column(10, plotOutput("picrust_pw_signif_plot"), 
+                             downloadLink("picrust_pw_signifPDF", "Download as PDF"), 
+                             downloadLink("picrust_pw_signifSVG", "Download as SVG"),
+                             downloadLink("picrust_pw_signifMETAFILE", "Download as METAFILE")),
                       column(2, 
                              numericInput("picrust_pw_signif_plot_show", "Set max. number of displayed PWs", 20, min = 1, max = 100, step = 1),
                              pickerInput("picrust_pw_select", "Select specific PW to display", choices=c(), multiple = T, options = list(`liveSearch` = T)),

@@ -695,6 +695,30 @@ output$picrust_ec_effectSVG <- downloadHandler(
   }
 )
 
+output$picrust_ec_effectMETAFILE <- downloadHandler(
+  filename = function(){"EC_effect.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      p=picrust_plots_reactive()$ec_effect_plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off() 
+    }
+  }
+)
+
+output$picrust_ec_effectMETAFILE <- downloadHandler(
+  filename = function(){"EC_effect.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      p=picrust_plots_reactive()$ec_effect_plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off() 
+    }
+  }
+)
+
 output$picrust_ec_vulcano_plot <- renderPlot({
   if(!is.null(picrust_plots_reactive())){
     picrust_plots_reactive()$ec_vulcano_plot
@@ -715,6 +739,18 @@ output$picrust_ec_vulcanoSVG <- downloadHandler(
   content = function(file){
     if(!is.null(picrust_plots_reactive())){
       ggsave(file, picrust_plots_reactive()$ec_vulcano_plot, width = 10, height = 7)
+    }
+  }
+)
+
+output$picrust_ec_vulcanoMETAFILE <- downloadHandler(
+  filename = function(){"EC_vulcano.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      p=picrust_plots_reactive()$ec_vulcano_plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off() 
     }
   }
 )
@@ -743,6 +779,18 @@ output$picrust_ko_effectSVG <- downloadHandler(
   }
 )
 
+output$picrust_ko_effectMETAFILE <- downloadHandler(
+  filename = function(){"KO_effect.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      p=picrust_plots_reactive()$ko_effect_plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off()
+    }
+  }
+)
+
 output$picrust_ko_vulcano_plot <- renderPlot({
   if(!is.null(picrust_plots_reactive())){
     picrust_plots_reactive()$ko_vulcano_plot
@@ -763,6 +811,18 @@ output$picrust_ko_vulcanoSVG <- downloadHandler(
   content = function(file){
     if(!is.null(picrust_plots_reactive())){
       ggsave(file, picrust_plots_reactive()$ko_vulcano_plot, width = 10, height = 7)
+    }
+  }
+)
+
+output$picrust_ko_vulcanoMETAFILE <- downloadHandler(
+  filename = function(){"KO_vulcano.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      p=picrust_plots_reactive()$ko_vulcano_plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off()
     }
   }
 )
@@ -791,6 +851,19 @@ output$picrust_pw_effectSVG <- downloadHandler(
   }
 )
 
+output$picrust_pw_effectMETAFILE <- downloadHandler(
+  filename = function(){"PW_effect.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      p=picrust_plots_reactive()$pw_effect_plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off()
+    }
+  }
+)
+
+
 output$picrust_pw_vulcano_plot <- renderPlot({
   if(!is.null(picrust_plots_reactive())){
     picrust_plots_reactive()$pw_vulcano_plot
@@ -815,6 +888,17 @@ output$picrust_pw_vulcanoSVG <- downloadHandler(
   }
 )
 
+output$picrust_pw_vulcanoMETAFILE <- downloadHandler(
+  filename = function(){"PW_vulcano.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      p=picrust_plots_reactive()$pw_vulcano_plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off()
+    }
+  }
+)
 output$picrust_ec_signif_plot <- renderPlot({
   if(!is.null(picrust_plots_reactive())){
     if(!is.null(picrust_plots_reactive()$ec_signif_plot_list)){
@@ -856,6 +940,23 @@ output$picrust_ec_signifSVG <- downloadHandler(
   }
 )
 
+output$picrust_ec_signifMETAFILE <- downloadHandler(
+  filename = function(){"EC_significant_boxplots.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      l <- picrust_plots_reactive()$ec_signif_plot_list
+      if(aldex_reactive()$has_effect_measure){
+        emf(file, width = 12, height = 8)
+        grid.arrange(l$p1,l$p2,l$p3,ncol=3,widths=c(3,1,1))
+        dev.off()
+      }else{
+        emf(file, width = 12, height = 8)
+        grid.arrange(l$p1,l$p2,l$p3,ncol=3,widths=c(3,1,1))
+        dev.off()
+      }
+    }
+  }
+)
 output$picrust_ko_signif_plot <- renderPlot({
   if(!is.null(picrust_plots_reactive())){
     if(!is.null(picrust_plots_reactive()$ko_signif_plot_list)){
@@ -892,6 +993,24 @@ output$picrust_ko_signifSVG <- downloadHandler(
         ggsave(file, grid.arrange(l$p1,l$p2,l$p3,ncol=3,widths=c(3,1,1)), width = 12, height = 8)
       }else{
         ggsave(file, grid.arrange(l$p1,l$p2,ncol=2,widths=c(3,1)), width = 12, height = 8)
+      }
+    }
+  }
+)
+
+output$picrust_ko_signifMETAFILE <- downloadHandler(
+  filename = function(){"KO_significant_boxplots.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      l <- picrust_plots_reactive()$ko_signif_plot_list
+      if(aldex_reactive()$has_effect_measure){
+        emf(file, width = 12, height = 8)
+        grid.arrange(l$p1,l$p2,l$p3,ncol=3,widths=c(3,1,1))
+        dev.off()
+      }else{
+        emf(file, width = 12, height = 8)
+        grid.arrange(l$p1,l$p2,l$p3,ncol=3,widths=c(3,1,1))
+        dev.off()
       }
     }
   }
@@ -938,6 +1057,23 @@ output$picrust_pw_signifSVG <- downloadHandler(
   }
 )
 
+output$picrust_pw_signifMETAFILE <- downloadHandler(
+  filename = function(){"PW_significant_boxplots.wmf"},
+  content = function(file){
+    if(!is.null(picrust_plots_reactive())){
+      l <- picrust_plots_reactive()$pw_signif_plot_list
+      if(aldex_reactive()$has_effect_measure){
+        emf(file, width = 12, height = 8)
+        grid.arrange(l$p1,l$p2,l$p3,ncol=3,widths=c(3,1,1))
+        dev.off()
+      }else{
+        emf(file, width = 12, height = 8)
+        grid.arrange(l$p1,l$p2,l$p3,ncol=3,widths=c(3,1,1))
+        dev.off()
+      }
+    }
+  }
+)
 #### significant features ####
 
 output$picrust_ec_effect_signif <- renderPrint({

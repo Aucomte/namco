@@ -23,7 +23,7 @@ RUN apt-get update && apt-get install -y \
     default-jre \
     libgsl-dev \
     cmake \
-    libtbb-dev
+    libtbb-dev 
     
 # Download and install shiny server
 RUN wget --no-verbose https://download3.rstudio.org/ubuntu-14.04/x86_64/VERSION -O "version.txt" && \
@@ -69,7 +69,7 @@ ENV OMP_NUM_THREADS=3
 #RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"
 
 ENV RENV_VERSION 0.16.0
-RUN R -e "install.packages(c('ranger','svglite'), repos = c(CRAN = 'https://cloud.r-project.org'))"
+RUN R -e "install.packages(c('ranger','svglite', 'devEMF'), repos = c(CRAN = 'https://cloud.r-project.org'))"
 #RUN R -e "install.packages('https://cran.r-project.org/src/contrib/Archive/foreign/foreign_0.8-76.tar.gz')"
 #RUN R -e "remotes::install_github('rstudio/renv@${RENV_VERSION}')"
 RUN R -e "install.packages('renv')"

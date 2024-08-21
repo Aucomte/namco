@@ -557,6 +557,34 @@ output$themetaBarSVG <- downloadHandler(
   }
 )
 
+output$themetaBarMETAFILE <- downloadHandler(
+  filename = function(){"themetagenomics_barplot.wmf"},
+  content = function(file){
+    if(!is.null(REL())){
+      if (show_topic$k != 0){
+        p_bar <- ggplot(data=REL()) +
+          geom_bar(aes_(~Term,~Total,fill=~Taxon),stat='identity',color='white',alpha=.6) +
+          geom_bar(aes_(~Term,~Freq),stat='identity',fill='darkred',color='white')
+      } else{
+        p_bar <- ggplot(data=REL()) +
+          geom_bar(aes_(~Term,~Total,fill=~Taxon),stat='identity',color='white',alpha=1)
+      }
+      
+      p_bar <- p_bar +
+        coord_flip() +
+        labs(x='',y='Frequency',fill='') +
+        theme(axis.text.x=element_text(angle=-90,hjust=0,vjust=.5),
+              legend.position='bottom') +
+        viridis::scale_fill_viridis(discrete=TRUE,drop=FALSE) +
+        guides(fill=guide_legend(nrow=2))
+      
+      emf(file, width = 10, height = 7)
+      print(p_bar)
+      dev.off() 
+    }
+  }
+)
+
 output$corr <- renderForceNetwork({
   if(!is.null(currentSet())){
     shiny::validate(
@@ -802,6 +830,18 @@ output$timeSeriesPlotSVG <- downloadHandler(
   content = function(file){
     if(!is.null(timeSeriesPlotReactive())){
       ggsave(file, timeSeriesPlotReactive()$plot, width = 10, height = 7)
+    }
+  }
+)
+
+output$timeSeriesPlotMETAFILE <- downloadHandler(
+  filename = function(){"time-series.wmf"},
+  content = function(file){
+    if(!is.null(timeSeriesPlotReactive())){
+      p = timeSeriesPlotReactive()$plot
+      emf(file, width = 10, height = 7)
+      print(p)
+      dev.off() 
     }
   }
 )
